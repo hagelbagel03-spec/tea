@@ -807,6 +807,9 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   });
   const [availableUsers, setAvailableUsers] = useState([]);
   
+  // ✅ NEU: Teams vom Backend laden mit Member-Count
+  const [availableTeams, setAvailableTeams] = useState([]);
+  
   // Benutzer-Auswahl für Team
   const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
   // selectedUsers bereits oben deklariert (Zeile 757) - keine doppelte Deklaration
