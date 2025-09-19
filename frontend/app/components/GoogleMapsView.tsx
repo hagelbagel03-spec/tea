@@ -70,54 +70,40 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
 
   return (
     <View style={styles.container}>
-      {/* Interactive Google Maps für Web */}
-      {Platform.OS === 'web' ? (
-        <View style={styles.webMapContainer}>
-          <View style={styles.mapInfoCard}>
-            <View style={[styles.priorityBadge, {
-              backgroundColor: getPriorityColor(incident.priority)
-            }]}>
-              <Text style={styles.priorityText}>
-                {incident.priority?.toUpperCase() || 'NORMAL'} PRIORITÄT
-              </Text>
-            </View>
-            <Text style={styles.incidentTitle}>📍 {incident.title}</Text>
-            <Text style={styles.incidentAddress}>{incident.address}</Text>
-            <Text style={styles.coordinates}>
-              📍 {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
-            </Text>
-            
-            <TouchableOpacity 
-              style={styles.openMapsButton}
-              onPress={openInGoogleMaps}
-            >
-              <Ionicons name="map" size={20} color="#FFFFFF" />
-              <Text style={styles.openMapsText}>🗺️ In Google Maps öffnen</Text>
-            </TouchableOpacity>
+      {/* ✅ ECHTE GOOGLE MAPS für alle Plattformen */}
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        initialRegion={{
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }}
+        onMapReady={() => setMapReady(true)}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        showsCompass={true}
+        showsScale={true}
+        mapType="standard" // standard, satellite, hybrid
+      >
+        <Marker
+          coordinate={coordinates}
+          title={incident.title || 'Vorfall'}
+          description={incident.address || `${coordinates.latitude}, ${coordinates.longitude}`}
+          pinColor={getPriorityColor(incident.priority)}
+        >
+          <View style={[styles.customMarker, {
+            backgroundColor: getPriorityColor(incident.priority)
+          }]}>
+            <Ionicons name="warning" size={20} color="#FFFFFF" />
           </View>
-        </View>
-      ) : (
-        <View style={styles.nativeMapPlaceholder}>
-          <Ionicons name="map" size={48} color={colors.primary} />
-          <Text style={styles.mapTitle}>🗺️ Live Google Maps</Text>
-          <Text style={styles.mapSubtitle}>📍 {incident.address}</Text>
-          <Text style={styles.coordinates}>
-            📍 {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
-          </Text>
-          
-          <TouchableOpacity 
-            style={styles.openMapsButton}
-            onPress={openInGoogleMaps}
-          >
-            <Ionicons name="navigate" size={20} color="#FFFFFF" />
-            <Text style={styles.openMapsText}>In Google Maps öffnen</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      
-      {/* Info Overlay nur für Web */}
-      {Platform.OS === 'web' && (
-        <View style={styles.infoOverlay}>
+        </Marker>
+      </MapView>
+
+      {/* Info-Overlay */}
+      <View style={styles.mapOverlay}>
+        <View style={styles.mapInfoCard}>
           <View style={[styles.priorityBadge, {
             backgroundColor: getPriorityColor(incident.priority)
           }]}>
@@ -125,9 +111,13 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
               {incident.priority?.toUpperCase() || 'NORMAL'} PRIORITÄT
             </Text>
           </View>
-          <Text style={styles.addressText}>📍 {incident.address}</Text>
+          <Text style={styles.incidentTitle}>📍 {incident.title}</Text>
+          <Text style={styles.incidentAddress}>{incident.address}</Text>
+          <Text style={styles.coordinates}>
+            📍 {coordinates.latitude.toFixed(6)}, {coordinates.longitude.toFixed(6)}
+          </Text>
         </View>
-      )}
+      </View>
     </View>
   );
 };
