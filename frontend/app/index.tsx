@@ -10093,6 +10093,174 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     }
   };
 
+  // ✅ NEU: Personal Vacation Modal für "Meine Urlaubsanträge"
+  const VacationFormModal = () => (
+    <Modal
+      visible={showVacationModal}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setShowVacationModal(false)}
+    >
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={dynamicStyles.shiftModalOverlay}>
+          <View style={[dynamicStyles.shiftModalContainer, { maxHeight: '80%' }]}>
+            {/* Header */}
+            <View style={dynamicStyles.shiftModernModalHeader}>
+              <View style={[dynamicStyles.shiftModernModalIconContainer, { backgroundColor: colors.primary + '20' }]}>
+                <Ionicons name="calendar" size={28} color={colors.primary} />
+              </View>
+              <View style={dynamicStyles.shiftModernModalTitleContainer}>
+                <Text style={dynamicStyles.shiftModernModalTitle}>📅 Meine Urlaubsanträge</Text>
+                <Text style={dynamicStyles.shiftModernModalSubtitle}>Status und Verwaltung</Text>
+              </View>
+              <TouchableOpacity
+                style={dynamicStyles.shiftModernModalCloseButton}
+                onPress={() => setShowVacationModal(false)}
+              >
+                <Ionicons name="close" size={24} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView 
+              style={dynamicStyles.shiftModernModalContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Urlaubsantrag Form */}
+              <View style={dynamicStyles.shiftModernFormSection}>
+                <Text style={dynamicStyles.shiftModernSectionLabel}>📝 Neuen Urlaubsantrag stellen</Text>
+                
+                <View style={dynamicStyles.shiftFormGroup}>
+                  <Text style={dynamicStyles.shiftModernInputLabel}>Von (Datum) *</Text>
+                  <View style={dynamicStyles.shiftModernInputContainer}>
+                    <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+                    <TextInput
+                      style={dynamicStyles.shiftModernInput}
+                      placeholder="DD.MM.YYYY"
+                      placeholderTextColor={colors.textMuted}
+                      value={vacationFormData.start_date}
+                      onChangeText={(text) => setVacationFormData(prev => ({ ...prev, start_date: text }))}
+                    />
+                  </View>
+                </View>
+
+                <View style={dynamicStyles.shiftFormGroup}>
+                  <Text style={dynamicStyles.shiftModernInputLabel}>Bis (Datum) *</Text>
+                  <View style={dynamicStyles.shiftModernInputContainer}>
+                    <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+                    <TextInput
+                      style={dynamicStyles.shiftModernInput}
+                      placeholder="DD.MM.YYYY"
+                      placeholderTextColor={colors.textMuted}
+                      value={vacationFormData.end_date}
+                      onChangeText={(text) => setVacationFormData(prev => ({ ...prev, end_date: text }))}
+                    />
+                  </View>
+                </View>
+
+                <View style={dynamicStyles.shiftFormGroup}>
+                  <Text style={dynamicStyles.shiftModernInputLabel}>Grund/Anlass *</Text>
+                  <View style={dynamicStyles.shiftModernInputContainer}>
+                    <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+                    <TextInput
+                      style={dynamicStyles.shiftModernInput}
+                      placeholder="Erholungsurlaub, Familienereignis..."
+                      placeholderTextColor={colors.textMuted}
+                      value={vacationFormData.reason}
+                      onChangeText={(text) => setVacationFormData(prev => ({ ...prev, reason: text }))}
+                      multiline
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.primary }]}
+                  onPress={async () => {
+                    try {
+                      const response = await fetch(`${API_URL}/api/vacations`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(vacationFormData)
+                      });
+                      
+                      if (response.ok) {
+                        Alert.alert('✅ Erfolg', 'Urlaubsantrag wurde eingereicht!');
+                        setVacationFormData({ user_id: '', start_date: '', end_date: '', reason: '' });
+                        loadMyVacations(); // Neu laden
+                      } else {
+                        Alert.alert('❌ Fehler', 'Urlaubsantrag konnte nicht eingereicht werden.');
+                      }
+                    } catch (error) {
+                      Alert.alert('❌ Fehler', 'Network error beim Einreichen.');
+                    }
+                  }}
+                >
+                  <Ionicons name="send" size={16} color="#FFFFFF" />
+                  <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>
+                    Antrag einreichen
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Meine bestehenden Anträge */}
+              <View style={dynamicStyles.shiftModernFormSection}>
+                <Text style={dynamicStyles.shiftModernSectionLabel}>📋 Meine Anträge</Text>
+                
+                {pendingVacations.length === 0 ? (
+                  <View style={dynamicStyles.emptyStateContainer}>
+                    <Ionicons name="calendar-outline" size={48} color={colors.textMuted} />
+                    <Text style={dynamicStyles.emptyStateText}>
+                      Keine Urlaubsanträge vorhanden
+                    </Text>
+                  </View>
+                ) : (
+                  pendingVacations.map(vacation => (
+                    <View key={vacation.id} style={dynamicStyles.shiftModernVacationCard}>
+                      <View>
+                        <View style={dynamicStyles.shiftModernInputContainer}>
+                          <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+                          <Text style={dynamicStyles.shiftModernInput}>
+                            {vacation.start_date} bis {vacation.end_date}
+                          </Text>
+                        </View>
+                        <Text style={dynamicStyles.shiftInputHint}>
+                          📝 Grund: {vacation.reason}
+                        </Text>
+                        <Text style={[dynamicStyles.shiftInputHint, { 
+                          color: vacation.status === 'approved' ? colors.success : 
+                                vacation.status === 'rejected' ? colors.error : colors.warning 
+                        }]}>
+                          Status: {vacation.status === 'approved' ? '✅ Genehmigt' : 
+                                   vacation.status === 'rejected' ? '❌ Abgelehnt' : '⏳ Ausstehend'}
+                        </Text>
+                        {vacation.approved_at && (
+                          <Text style={[dynamicStyles.shiftInputHint, { color: colors.textMuted, marginTop: 4 }]}>
+                            📅 Bearbeitet: {new Date(vacation.approved_at).toLocaleDateString('de-DE', { 
+                              year: 'numeric', 
+                              month: '2-digit', 
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+
   return (
     <SafeAreaView style={dynamicStyles.container}>
       <StatusBar 
