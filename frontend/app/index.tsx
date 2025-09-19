@@ -10369,11 +10369,11 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                 </TouchableOpacity>
               </View>
 
-              {/* Meine bestehenden Anträge */}
+              {/* Meine bestehenden Anträge - FIX: Use myVacations statt pendingVacations */}
               <View style={dynamicStyles.shiftModernFormSection}>
                 <Text style={dynamicStyles.shiftModernSectionLabel}>📋 Meine Anträge</Text>
                 
-                {pendingVacations.length === 0 ? (
+                {myVacations.length === 0 ? (
                   <View style={dynamicStyles.emptyStateContainer}>
                     <Ionicons name="calendar-outline" size={48} color={colors.textMuted} />
                     <Text style={dynamicStyles.emptyStateText}>
@@ -10381,7 +10381,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                     </Text>
                   </View>
                 ) : (
-                  pendingVacations.map(vacation => (
+                  myVacations.map(vacation => (
                     <View key={vacation.id} style={dynamicStyles.shiftModernVacationCard}>
                       <View>
                         <View style={dynamicStyles.shiftModernInputContainer}>
