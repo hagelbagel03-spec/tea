@@ -572,6 +572,16 @@ async def login(user_data: UserLogin):
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     return current_user
 
+@api_router.get("/auth/profile", response_model=User)
+async def get_profile(current_user: User = Depends(get_current_user)):
+    """Get current user's profile information"""
+    return current_user
+
+@api_router.get("/user/profile", response_model=User)
+async def get_user_profile(current_user: User = Depends(get_current_user)):
+    """Alternative endpoint for user profile"""
+    return current_user
+
 @api_router.put("/auth/profile", response_model=User)
 async def update_profile(user_updates: UserUpdate, current_user: User = Depends(get_current_user)):
     # Prepare update data
