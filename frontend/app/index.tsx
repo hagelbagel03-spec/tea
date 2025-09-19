@@ -335,12 +335,19 @@ const LoginScreen = ({ appConfig }) => {
 
     setLoading(true);
     console.log('🚀 LOGIN CALL:', { cleanEmail, cleanPassword });
-    const result = await login(cleanEmail, cleanPassword);
-    setLoading(false);
+    
+    try {
+      const result = await login(cleanEmail, cleanPassword);
+      setLoading(false);
 
-    if (!result.success) {
-      console.log('❌ LOGIN FAILED:', result.error);
-      Alert.alert('Verbindungsfehler', result.error);
+      if (!result.success) {
+        console.log('❌ LOGIN FAILED:', result.error);
+        Alert.alert('Verbindungsfehler', result.error);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log('💥 LOGIN CRASH PREVENTED:', error);
+      Alert.alert('Verbindungsfehler', 'Login fehlgeschlagen. Bitte prüfen Sie Ihre Internetverbindung.');
     }
   };
 
