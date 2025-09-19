@@ -10677,56 +10677,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
               </View>
             </View>
 
-            {/* Quick Navigation Links */}
-            <View style={dynamicStyles.formGroup}>
-              <Text style={dynamicStyles.formLabel}>🚀 Schnellzugriff</Text>
-              <View style={dynamicStyles.quickLinksContainer}>
-                <TouchableOpacity 
-                  style={dynamicStyles.quickLinkButton}
-                  onPress={() => {
-                    setShowProfileModal(false);
-                    setActiveTab('team');
-                  }}
-                >
-                  <Ionicons name="people" size={20} color={colors.primary} />
-                  <Text style={dynamicStyles.quickLinkText}>👥 Team Übersicht</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={dynamicStyles.quickLinkButton}
-                  onPress={() => {
-                    setShowProfileModal(false);
-                    setActiveTab('database');
-                  }}
-                >
-                  <Ionicons name="folder" size={20} color={colors.primary} />
-                  <Text style={dynamicStyles.quickLinkText}>📂 Personendatenbank</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={dynamicStyles.quickLinkButton}
-                  onPress={() => {
-                    setShowProfileModal(false);
-                    setActiveTab('berichte');
-                  }}
-                >
-                  <Ionicons name="document-text" size={20} color={colors.primary} />
-                  <Text style={dynamicStyles.quickLinkText}>📊 Berichte & Archiv</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={dynamicStyles.quickLinkButton}
-                  onPress={() => {
-                    setShowProfileModal(false);
-                    setActiveTab('report');
-                  }}
-                >
-                  <Ionicons name="add-circle" size={20} color={colors.primary} />
-                  <Text style={dynamicStyles.quickLinkText}>📝 Vorfall melden</Text>
-                </TouchableOpacity>
-
-              </View>
-            </View>
+            {/* Schnellzugriff entfernt wie gewünscht */}
 
             <View style={{ height: 40 }} />
           </ScrollView>
