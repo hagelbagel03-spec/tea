@@ -9555,49 +9555,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
         </View>
 
         {/* ✅ NEU: MEINE URLAUBSANTRÄGE - Status und Verwaltung */}
-        <View style={{ paddingHorizontal: 16 }}>
-          <TouchableOpacity 
-            style={[dynamicStyles.card, {
-              minHeight: 100,
-              backgroundColor: colors.surface,
-              marginBottom: 16
-            }]}
-            onPress={() => {
-              console.log('📅 Meine Urlaubsanträge clicked in Schichtverwaltung');
-              setShowVacationModal(true);
-              loadMyVacations(); // Lade meine eigenen Urlaubsanträge
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={dynamicStyles.cardHeader}>
-              <Ionicons name="calendar" size={24} color={colors.primary} />
-              <Text style={dynamicStyles.cardTitle}>📅 Meine Urlaubsanträge</Text>
-            </View>
-            <Text style={dynamicStyles.cardSubtitle}>
-              Status und Verwaltung
-            </Text>
-            <View style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Ionicons 
-                name="calendar-outline" 
-                size={16} 
-                color={colors.primary}
-              />
-              <Text style={{
-                fontSize: 12,
-                color: colors.textMuted,
-                marginLeft: 6,
-                fontWeight: '500'
-              }}>
-                Urlaub beantragen und Status einsehen
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
+      
         {/* ✅ NEU: MEINE KRANKMELDUNGEN - Status und Verwaltung */}
         <View style={{ paddingHorizontal: 16 }}>
           <TouchableOpacity 
