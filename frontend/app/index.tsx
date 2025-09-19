@@ -13969,7 +13969,7 @@ Beispielinhalt:
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                       <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Team-Name:</Text>
                       <Text style={{ color: colors.text, fontWeight: '600' }}>
-                        {profileData.patrol_team || user?.patrol_team || 'Nicht zugewiesen'}
+{(profileData.patrol_team || user?.patrol_team) ? (profileData.patrol_team || user?.patrol_team) : null}
                       </Text>
                     </View>
                     
