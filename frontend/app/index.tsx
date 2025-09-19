@@ -12932,25 +12932,27 @@ Beispielinhalt:
                           )}
                         </View>
                         
-                        <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, marginBottom: 20 }}>
-                          <TouchableOpacity 
-                            style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.success, flex: 1, marginHorizontal: 0 }]}
-                            onPress={() => handleVacationApproval(vacation.id, 'approve')}
-                          >
-                            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                            <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Genehmigen</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity 
-                            style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.error, flex: 1, marginHorizontal: 0 }]}
-                            onPress={() => {
-                              setRejectionVacationId(vacation.id);
-                              setShowRejectionModal(true);
-                            }}
-                          >
-                            <Ionicons name="close" size={16} color="#FFFFFF" />
-                            <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Ablehnen</Text>
-                          </TouchableOpacity>
-                        </View>
+                        {vacation.status === 'pending' && (
+                          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, marginBottom: 20 }}>
+                            <TouchableOpacity 
+                              style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.success, flex: 1, marginHorizontal: 0 }]}
+                              onPress={() => handleVacationApproval(vacation.id, 'approve')}
+                            >
+                              <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                              <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Genehmigen</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                              style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.error, flex: 1, marginHorizontal: 0 }]}
+                              onPress={() => {
+                                setRejectionVacationId(vacation.id);
+                                setShowRejectionModal(true);
+                              }}
+                            >
+                              <Ionicons name="close" size={16} color="#FFFFFF" />
+                              <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Ablehnen</Text>
+                            </TouchableOpacity>
+                          </View>
+                        )}
                       </View>
                     ))
                   )}
