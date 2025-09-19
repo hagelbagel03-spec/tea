@@ -15719,6 +15719,119 @@ Beispielinhalt:
 
       {/* ✅ Personal Vacation Modal */}
       <VacationFormModal />
+
+      {/* ✅ NEU: Sick Leave Management Modal für Admin */}
+      <Modal
+        visible={showSickLeaveManagementModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSickLeaveManagementModal(false)}
+      >
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={dynamicStyles.shiftModalOverlay}>
+            <View style={[dynamicStyles.shiftModalContainer, { maxHeight: '80%' }]}>
+              {/* Header */}
+              <View style={dynamicStyles.shiftModernModalHeader}>
+                <View style={[dynamicStyles.shiftModernModalIconContainer, { backgroundColor: colors.error + '20' }]}>
+                  <Ionicons name="medical" size={28} color={colors.error} />
+                </View>
+                <View style={dynamicStyles.shiftModernModalTitleContainer}>
+                  <Text style={dynamicStyles.shiftModernModalTitle}>🏥 Krankmeldungen</Text>
+                  <Text style={dynamicStyles.shiftModernModalSubtitle}>Genehmigen • Ablehnen • Verwalten</Text>
+                </View>
+                <TouchableOpacity
+                  style={dynamicStyles.shiftModernModalCloseButton}
+                  onPress={() => setShowSickLeaveManagementModal(false)}
+                >
+                  <Ionicons name="close" size={24} color={colors.textMuted} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView 
+                style={dynamicStyles.shiftModernModalContent}
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={dynamicStyles.shiftModernFormSection}>
+                  <Text style={dynamicStyles.shiftModernSectionLabel}>⏳ Ausstehende Krankmeldungen</Text>
+                  
+                  {pendingSickLeave.length === 0 ? (
+                    <View style={dynamicStyles.emptyStateContainer}>
+                      <Ionicons name="medical-outline" size={48} color={colors.textMuted} />
+                      <Text style={dynamicStyles.emptyStateText}>
+                        Keine ausstehenden Krankmeldungen
+                      </Text>
+                    </View>
+                  ) : (
+                    pendingSickLeave.map(sickness => (
+                      <View key={sickness.id} style={[dynamicStyles.shiftModernVacationCard, {
+                        borderLeftColor: colors.error,
+                        borderLeftWidth: 4
+                      }]}>
+                        {/* Rotes X Icon - genau wie im Bild */}
+                        <View style={{
+                          position: 'absolute',
+                          top: 16,
+                          right: 16,
+                          backgroundColor: colors.error,
+                          borderRadius: 12,
+                          width: 24,
+                          height: 24,
+                          justifyContent: 'center',
+                          alignItems: 'center'
+                        }}>
+                          <Ionicons name="close" size={16} color="#FFFFFF" />
+                        </View>
+
+                        <View>
+                          <Text style={dynamicStyles.shiftModernInputLabel}>{sickness.user_name}</Text>
+                          <View style={dynamicStyles.shiftModernInputContainer}>
+                            <Ionicons name="calendar-outline" size={20} color={colors.error} />
+                            <Text style={dynamicStyles.shiftModernInput}>
+                              {sickness.start_date} bis {sickness.end_date}
+                            </Text>
+                          </View>
+                          <Text style={dynamicStyles.shiftInputHint}>
+                            🏥 Grund: {sickness.reason || 'Nicht angegeben'}
+                          </Text>
+                          {sickness.medical_certificate && (
+                            <Text style={[dynamicStyles.shiftInputHint, { color: colors.success }]}>
+                              📄 Ärztliches Attest vorhanden
+                            </Text>
+                          )}
+                        </View>
+                        
+                        {/* Genehmigen/Ablehnen Buttons - nur bei pending */}
+                        {sickness.status === 'pending' && (
+                          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, marginBottom: 20 }}>
+                            <TouchableOpacity 
+                              style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.success, flex: 1, marginHorizontal: 0 }]}
+                              onPress={() => handleSickLeaveApproval(sickness.id, 'approve')}
+                            >
+                              <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                              <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Genehmigen</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                              style={[dynamicStyles.shiftModernActionButton, { backgroundColor: colors.error, flex: 1, marginHorizontal: 0 }]}
+                              onPress={() => handleSickLeaveApproval(sickness.id, 'reject')}
+                            >
+                              <Ionicons name="close" size={16} color="#FFFFFF" />
+                              <Text style={[dynamicStyles.shiftModernActionButtonText, { color: '#FFFFFF', marginLeft: 6 }]}>Ablehnen</Text>
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
+                    ))
+                  )}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
     </SafeAreaView>
   );
 };
