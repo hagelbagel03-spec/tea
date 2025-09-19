@@ -1057,48 +1057,6 @@ const ShiftManagementComponent = ({ user, token, API_URL, colors, isDarkMode, is
                     />
                   </View>
                 </View>
-                
-                <View style={dynamicStyles.vacationMainContent}>
-                  <View style={dynamicStyles.vacationTopRow}>
-                    <Text style={dynamicStyles.modernVacationTitle}>
-                      📅 Urlaubsantrag
-                    </Text>
-                    <View style={[dynamicStyles.modernStatusChip, { backgroundColor: getStatusColor(vacation.status) + '20', borderColor: getStatusColor(vacation.status) }]}>
-                      <Text style={[dynamicStyles.modernStatusChipText, { color: getStatusColor(vacation.status) }]}>
-                        {getStatusText(vacation.status)}
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  <View style={dynamicStyles.vacationDateRow}>
-                    <View style={dynamicStyles.vacationDateContainer}>
-                      <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-                      <Text style={dynamicStyles.modernVacationDates}>
-                        {vacation.start_date} bis {vacation.end_date}
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  {vacation.reason && (
-                    <View style={dynamicStyles.vacationReasonContainer}>
-                      <Ionicons name="document-text-outline" size={14} color={colors.textMuted} />
-                      <Text style={dynamicStyles.modernVacationReason} numberOfLines={2}>
-                        {vacation.reason}
-                      </Text>
-                    </View>
-                  )}
-
-                  {/* Rejection Reason - Show if vacation is rejected */}
-                  {vacation.status === 'rejected' && vacation.rejection_reason && (
-                    <View style={dynamicStyles.rejectionReasonContainer}>
-                      <Ionicons name="warning-outline" size={14} color={colors.error} />
-                      <Text style={dynamicStyles.rejectionReasonText} numberOfLines={3}>
-                        Ablehnungsgrund: {vacation.rejection_reason}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-
                 <View style={dynamicStyles.vacationActionButton}>
                   <TouchableOpacity 
                     style={dynamicStyles.vacationViewButton}
