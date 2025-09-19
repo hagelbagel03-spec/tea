@@ -15379,7 +15379,24 @@ Beispielinhalt:
                       </Text>
                     </View>
                   </TouchableOpacity>
-                ))}
+                )) : (
+                  <View style={{
+                    padding: 20,
+                    alignItems: 'center',
+                    backgroundColor: colors.card,
+                    borderRadius: 12,
+                    marginVertical: 8
+                  }}>
+                    <Ionicons name="people-outline" size={48} color={colors.textMuted} />
+                    <Text style={{
+                      color: colors.textMuted,
+                      fontSize: 16,
+                      marginTop: 8
+                    }}>
+                      Keine Teams verfügbar
+                    </Text>
+                  </View>
+                )}
 
                 {/* Rollen-Auswahl */}
                 {selectedTeam && (
