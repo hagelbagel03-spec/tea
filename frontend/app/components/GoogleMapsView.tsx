@@ -61,7 +61,7 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
   }
 
   const openInGoogleMaps = () => {
-    const url = `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`;
+    const url = `https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`;
     if (Platform.OS === 'web') {
       // @ts-ignore
       window.open(url, '_blank');
