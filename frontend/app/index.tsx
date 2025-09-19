@@ -807,6 +807,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   
   // Neue Admin Daten
   const [pendingVacations, setPendingVacations] = useState([]);
+  const [myVacations, setMyVacations] = useState([]); // ✅ FIX: Separate state for personal vacations
   const [attendanceList, setAttendanceList] = useState([]);
   const [teamStatusList, setTeamStatusList] = useState([]);
   
