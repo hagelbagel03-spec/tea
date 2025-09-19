@@ -2025,16 +2025,9 @@ async def get_districts(current_user: User = Depends(get_current_user)):
     districts = await db.districts.find().to_list(100)
     return districts
 
-# Removed duplicate endpoint - using @api_router.post("/admin/teams") instead
+# ✅ FIX: Removed duplicate @app endpoints - using only @api_router endpoints
 
-@app.get("/api/admin/teams")
-async def get_teams(current_user: User = Depends(get_current_user)):
-    """Alle Teams abrufen"""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    teams = await db.teams.find().to_list(100)
-    return serialize_mongo_data(teams)
+# Team creation endpoint is now at @api_router.post("/admin/teams") - see line 2236
 
 @app.put("/api/admin/assign-user")
 async def assign_user_to_team_district(assignment: TeamAssignment, current_user: User = Depends(get_current_user)):
