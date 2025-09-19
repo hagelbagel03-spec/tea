@@ -3501,11 +3501,10 @@ const MainApp = ({ appConfig, setAppConfig }) => {
         accuracy: location.coords.accuracy
       };
       
-      // Update location field safely
+      // Update location field safely - REMOVE this line as it conflicts with incident form
+      // The incident form will be updated separately in useCurrentLocationForIncident
       try {
-        setLocation(`📍 GPS: ${locationData.lat.toFixed(6)}, ${locationData.lng.toFixed(6)}`);
-        setCurrentLocation(locationData);
-        console.log('✅ Location field updated successfully');
+        console.log('✅ Location data prepared successfully:', locationData);
       } catch (updateError) {
         console.error('❌ Location update failed:', updateError);
       }
