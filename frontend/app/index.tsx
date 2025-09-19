@@ -716,9 +716,30 @@ const IncidentMapModal = ({ visible, onClose, incident }) => {
 
 // Modern Main App
 const MainApp = ({ appConfig, setAppConfig }) => {
+  console.log('🚀 MainApp rendering started...');
+  
   const { user, updateUser, logout, token } = useAuth();
   const { colors, isDarkMode, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
+
+  // Add error boundary logging
+  useEffect(() => {
+    console.log('✅ MainApp mounted successfully');
+    console.log('👤 User state:', user ? user.username : 'No user');
+    console.log('🔑 Token exists:', !!token);
+  }, []);
+
+  // Simplified initial render to test
+  if (!user) {
+    console.log('❌ MainApp: No user, should not happen after login');
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+        <Text style={{ color: colors.text }}>Benutzer wird geladen...</Text>
+      </View>
+    );
+  }
+
+  console.log('✅ MainApp: Rendering main interface for user:', user.username);
   const [stats, setStats] = useState({ incidents: 0, officers: 0, messages: 0 });
   
   // Team Chat State
