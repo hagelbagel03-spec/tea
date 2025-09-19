@@ -1726,7 +1726,7 @@ async def get_checkins(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/vacations")
+@api_router.post("/vacations")
 async def request_vacation(vacation_data: VacationCreate, current_user: User = Depends(get_current_user)):
     """Urlaubsantrag stellen"""
     try:
