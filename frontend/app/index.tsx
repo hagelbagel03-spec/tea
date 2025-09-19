@@ -1152,7 +1152,8 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     reason: '',
     medical_certificate: false
   });
-  const [pendingSickLeave, setPendingSickLeave] = useState([]);
+  // ✅ NEU: Separate state für persönliche Urlaubsanträge  
+  const [myVacations, setMyVacations] = useState([]);
   // pendingVacations bereits oben deklariert (Zeile 783) - keine doppelte Deklaration
   
   useEffect(() => {
