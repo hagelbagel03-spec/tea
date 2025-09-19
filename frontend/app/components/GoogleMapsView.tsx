@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+
+const { width } = Dimensions.get('window');
 
 const GoogleMapsView = ({ incident }: { incident: any }) => {
   const colors = {
@@ -15,17 +18,19 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
     success: '#28A745'
   };
 
+  const [mapReady, setMapReady] = useState(false);
+
   const getCoordinates = () => {
     if (incident?.location?.lat && incident?.location?.lng) {
       return {
-        lat: parseFloat(incident.location.lat),
-        lng: parseFloat(incident.location.lng)
+        latitude: parseFloat(incident.location.lat),
+        longitude: parseFloat(incident.location.lng)
       };
     }
     if (incident?.coordinates?.lat && incident?.coordinates?.lng) {
       return {
-        lat: parseFloat(incident.coordinates.lat),
-        lng: parseFloat(incident.coordinates.lng)
+        latitude: parseFloat(incident.coordinates.lat),
+        longitude: parseFloat(incident.coordinates.lng)
       };
     }
     return null;
