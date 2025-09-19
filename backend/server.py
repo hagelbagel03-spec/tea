@@ -1756,7 +1756,7 @@ async def request_vacation(vacation_data: VacationCreate, current_user: User = D
         print(f"❌ FEHLER beim Urlaubsantrag von {current_user.username}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/vacations")
+@api_router.get("/vacations")
 async def get_vacations(current_user: User = Depends(get_current_user)):
     """Lade Urlaubsanträge"""
     try:
