@@ -9488,6 +9488,50 @@ const MainApp = ({ appConfig, setAppConfig }) => {
           </TouchableOpacity>
         </View>
 
+        {/* ✅ NEU: MEINE KRANKMELDUNGEN - Status und Verwaltung */}
+        <View style={{ paddingHorizontal: 16 }}>
+          <TouchableOpacity 
+            style={[dynamicStyles.card, {
+              minHeight: 100,
+              backgroundColor: colors.surface,
+              marginBottom: 16
+            }]}
+            onPress={() => {
+              console.log('🏥 Meine Krankmeldungen clicked in Schichtverwaltung');
+              setShowSickLeaveModal(true);
+              loadMySickLeave(); // Lade meine eigenen Krankmeldungen
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={dynamicStyles.cardHeader}>
+              <Ionicons name="medical" size={24} color={colors.error} />
+              <Text style={dynamicStyles.cardTitle}>🏥 Meine Krankmeldungen</Text>
+            </View>
+            <Text style={dynamicStyles.cardSubtitle}>
+              Status und Verwaltung
+            </Text>
+            <View style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Ionicons 
+                name="medical-outline" 
+                size={16} 
+                color={colors.error}
+              />
+              <Text style={{
+                fontSize: 12,
+                color: colors.textMuted,
+                marginLeft: 6,
+                fontWeight: '500'
+              }}>
+                Krankmeldung einreichen und Status einsehen
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Original ShiftManagementComponent */}
         <View style={{ flex: 1 }}>
           <ShiftManagementComponent 
