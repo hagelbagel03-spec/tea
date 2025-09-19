@@ -808,7 +808,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   
   // Benutzer-Auswahl für Team
   const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+  // selectedUsers bereits oben deklariert (Zeile 757) - keine doppelte Deklaration
   const [showSOSModal, setShowSOSModal] = useState(false);
 
   // SOS Alarm Function - Send real notification with GPS to all team members
