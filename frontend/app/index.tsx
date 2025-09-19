@@ -2173,6 +2173,26 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     }
   };
 
+  // ✅ NEU: Lade meine eigenen Urlaubsanträge
+  const loadMyVacations = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/vacations`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📅 Loaded my vacations:', data);
+        setPendingVacations(data || []); // Verwende dieselbe State für Anzeige
+      } else {
+        console.error('❌ Fehler beim Laden meiner Urlaubsanträge');
+        setPendingVacations([]);
+      }
+    } catch (error) {
+      console.error('❌ Network error loading my vacations:', error);
+      setPendingVacations([]);
+    }
+  };
+
   const loadAttendanceList = async () => {
     try {
       const response = await fetch(`${API_URL}/admin/attendance`, {
