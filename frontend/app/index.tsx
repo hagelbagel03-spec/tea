@@ -13178,7 +13178,7 @@ Beispielinhalt:
 
                 {/* Pending Vacations List */}
                 <View style={dynamicStyles.shiftModernFormSection}>
-                  <Text style={dynamicStyles.shiftModernSectionLabel}>📋 Alle Urlaubsanträge</Text>
+                  <Text style={dynamicStyles.shiftModernSectionLabel}>⏳ Ausstehende Anträge</Text>
                   
                   {pendingVacations.length === 0 ? (
                     <View style={dynamicStyles.shiftModernInputContainer}>
