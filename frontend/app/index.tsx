@@ -13576,7 +13576,7 @@ Beispielinhalt:
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Zugewiesener Bezirk:</Text>
                         <Text style={{ color: colors.text, fontWeight: '600' }}>
-                          {profileData.assigned_district || user?.assigned_district || 'Nicht zugewiesen'}
+  {(profileData.assigned_district || user?.assigned_district) ? (profileData.assigned_district || user?.assigned_district) : null}
                         </Text>
                       </View>
                       
