@@ -9315,7 +9315,10 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                   <Text style={[dynamicStyles.statusBadgeText, { 
                     color: (profileData.patrol_team || user?.patrol_team) ? colors.success : colors.warning 
                   }]}>
-                    {profileData.patrol_team || user?.patrol_team || user?.team || 'Nicht zugewiesen'}
+                    {(profileData.patrol_team || user?.patrol_team || user?.team) ? 
+                      (profileData.patrol_team || user?.patrol_team || user?.team) : 
+                      null
+                    }
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
