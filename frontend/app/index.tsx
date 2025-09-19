@@ -15541,6 +15541,9 @@ Beispielinhalt:
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* ✅ Personal Vacation Modal */}
+      <VacationFormModal />
     </SafeAreaView>
   );
 };
