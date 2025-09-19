@@ -15592,6 +15592,47 @@ export default function App() {
   );
 }
 
+// Error Boundary Component
+class MainAppErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    console.log('🚨 MainApp Error Boundary caught error:', error);
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.log('🚨 MainApp Error details:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000' }}>
+          <Text style={{ color: '#FFFFFF', fontSize: 18, marginBottom: 20 }}>
+            MainApp Rendering Error
+          </Text>
+          <Text style={{ color: '#FF6B6B', fontSize: 14, textAlign: 'center', marginHorizontal: 20 }}>
+            {this.state.error?.toString() || 'Unknown error in MainApp'}
+          </Text>
+          <TouchableOpacity 
+            style={{ backgroundColor: '#007AFF', padding: 15, borderRadius: 8, marginTop: 20 }}
+            onPress={() => this.setState({ hasError: false, error: null })}
+          >
+            <Text style={{ color: '#FFFFFF' }}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// AppContent component - the main rendering logic
 const AppContent = () => {
   const { user, loading } = useAuth();
   const { colors } = useTheme();
