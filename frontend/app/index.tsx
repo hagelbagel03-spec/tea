@@ -10353,7 +10353,8 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                           end_date: new Date().toISOString().split('T')[0], // ✅ Aktuelles Datum setzen
                           reason: '' 
                         });
-                        loadMyVacations(); // Neu laden
+                        // ✅ FIX: Meine Urlaubsanträge neu laden nach Erstellung
+                        loadMyVacations();
                       } else {
                         Alert.alert('❌ Fehler', 'Urlaubsantrag konnte nicht eingereicht werden.');
                       }
