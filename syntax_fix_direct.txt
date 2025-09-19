@@ -1,0 +1,104 @@
+// DIREKTE LÖSUNG für Zeile 15382 Syntax-Fehler
+// Ersetzen Sie die Zeilen 15321-15400 in Ihrer index.tsx mit folgendem Code:
+
+                {/* ✅ DIREKTE SYNTAX-FIX - Team-Auswahl ohne Probleme */}
+                <Text style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: colors.text,
+                  marginBottom: 12
+                }}>
+                  👥 Team auswählen:
+                </Text>
+                
+                {/* Team Alpha */}
+                <TouchableOpacity
+                  onPress={() => setSelectedTeam({ id: 'alpha', name: 'Team Alpha', description: 'Hauptteam', status: 'Aktiv' })}
+                  style={{
+                    backgroundColor: selectedTeam?.id === 'alpha' ? colors.primary + '20' : colors.card,
+                    padding: 16,
+                    marginVertical: 4,
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: selectedTeam?.id === 'alpha' ? colors.primary : colors.border,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Ionicons 
+                    name={selectedTeam?.id === 'alpha' ? "radio-button-on" : "radio-button-off"} 
+                    size={20} 
+                    color={selectedTeam?.id === 'alpha' ? colors.primary : colors.textMuted} 
+                  />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={{ color: colors.text, fontWeight: '600', fontSize: 16 }}>Team Alpha</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 2 }}>Hauptteam - Patrouillen</Text>
+                  </View>
+                  <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: colors.success + '20' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.success }}>Aktiv</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Team Bravo */}
+                <TouchableOpacity
+                  onPress={() => setSelectedTeam({ id: 'bravo', name: 'Team Bravo', description: 'Verkehr', status: 'Aktiv' })}
+                  style={{
+                    backgroundColor: selectedTeam?.id === 'bravo' ? colors.primary + '20' : colors.card,
+                    padding: 16,
+                    marginVertical: 4,
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: selectedTeam?.id === 'bravo' ? colors.primary : colors.border,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Ionicons 
+                    name={selectedTeam?.id === 'bravo' ? "radio-button-on" : "radio-button-off"} 
+                    size={20} 
+                    color={selectedTeam?.id === 'bravo' ? colors.primary : colors.textMuted} 
+                  />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={{ color: colors.text, fontWeight: '600', fontSize: 16 }}>Team Bravo</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 2 }}>Verkehrsüberwachung</Text>
+                  </View>
+                  <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: colors.success + '20' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.success }}>Aktiv</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Team Charlie */}
+                <TouchableOpacity
+                  onPress={() => setSelectedTeam({ id: 'charlie', name: 'Team Charlie', description: 'Ermittlung', status: 'Aktiv' })}
+                  style={{
+                    backgroundColor: selectedTeam?.id === 'charlie' ? colors.primary + '20' : colors.card,
+                    padding: 16,
+                    marginVertical: 4,
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: selectedTeam?.id === 'charlie' ? colors.primary : colors.border,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Ionicons 
+                    name={selectedTeam?.id === 'charlie' ? "radio-button-on" : "radio-button-off"} 
+                    size={20} 
+                    color={selectedTeam?.id === 'charlie' ? colors.primary : colors.textMuted} 
+                  />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={{ color: colors.text, fontWeight: '600', fontSize: 16 }}>Team Charlie</Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 14, marginTop: 2 }}>Ermittlungen & Sonderaufgaben</Text>
+                  </View>
+                  <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: colors.success + '20' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: colors.success }}>Aktiv</Text>
+                  </View>
+                </TouchableOpacity>
+
+// ANWEISUNGEN:
+// 1. Öffnen Sie index.tsx in einem Texteditor
+// 2. Suchen Sie nach Zeile 15382 mit "))}
+// 3. Löschen Sie die gesamte Team-Auswahl Sektion (ca. Zeilen 15321-15400)
+// 4. Ersetzen Sie sie mit dem obigen Code
+// 5. Speichern Sie die Datei
+// 6. Starten Sie den Build neu
