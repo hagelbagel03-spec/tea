@@ -9234,8 +9234,11 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                   color: (profileData.assigned_district || user?.assigned_district) ? colors.primary : colors.warning, 
                   fontSize: 14 
                 }]}>
-                  {/* ✅ EXTRA FALLBACKS hinzugefügt */}
-                  {profileData.assigned_district || user?.assigned_district || user?.district || 'Nicht zugewiesen'}
+                  {/* ✅ Nur anzeigen wenn zugewiesen */}
+                  {(profileData.assigned_district || user?.assigned_district || user?.district) ? 
+                    (profileData.assigned_district || user?.assigned_district || user?.district) : 
+                    null
+                  }
                 </Text>
                 <Text style={dynamicStyles.summaryLabel}>Bezirk</Text>
               </View>
