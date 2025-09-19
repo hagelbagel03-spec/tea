@@ -9217,8 +9217,11 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                   <Text style={[dynamicStyles.statusBadgeText, { 
                     color: (profileData.assigned_district || user?.assigned_district) ? colors.success : colors.warning 
                   }]}>
-                    {/* ✅ FIX: Robuste Anzeige mit mehreren Fallbacks */}
-                    {profileData.assigned_district || user?.assigned_district || user?.district || 'Nicht zugewiesen'}
+                    {/* ✅ FIX: Nur anzeigen wenn tatsächlich zugewiesen */}
+                    {(profileData.assigned_district || user?.assigned_district || user?.district) ? 
+                      (profileData.assigned_district || user?.assigned_district || user?.district) : 
+                      null
+                    }
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
