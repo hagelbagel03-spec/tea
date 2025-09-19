@@ -13565,49 +13565,51 @@ Beispielinhalt:
                 {/* Detail-Karten */}
                 <View style={{ gap: 16 }}>
                   
-                  {/* Bezirks-Info */}
-                  <View style={{
-                    backgroundColor: colors.card,
-                    borderRadius: 16,
-                    padding: 20,
-                    borderWidth: 1,
-                    borderColor: colors.border
-                  }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                      <Ionicons name="location" size={24} color={colors.primary} />
-                      <Text style={{
-                        fontSize: 18,
-                        fontWeight: 'bold',
-                        color: colors.text,
-                        marginLeft: 12
-                      }}>
-                        Bezirks-Information
-                      </Text>
-                    </View>
-                    
-                    <View style={{ gap: 12 }}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Zugewiesener Bezirk:</Text>
-                        <Text style={{ color: colors.text, fontWeight: '600' }}>
-  {(profileData.assigned_district || user?.assigned_district) ? (profileData.assigned_district || user?.assigned_district) : null}
+                  {/* Bezirks-Info - nur anzeigen wenn Bezirk zugewiesen */}
+                  {(profileData.assigned_district || user?.assigned_district) && (
+                    <View style={{
+                      backgroundColor: colors.card,
+                      borderRadius: 16,
+                      padding: 20,
+                      borderWidth: 1,
+                      borderColor: colors.border
+                    }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                        <Ionicons name="location" size={24} color={colors.primary} />
+                        <Text style={{
+                          fontSize: 18,
+                          fontWeight: 'bold',
+                          color: colors.text,
+                          marginLeft: 12
+                        }}>
+                          Bezirks-Information
                         </Text>
                       </View>
                       
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Arbeitsgebiet:</Text>
-                        <Text style={{ color: colors.text, fontWeight: '600' }}>
-                          {user?.district_area || 'Standard-Bereich'}
-                        </Text>
-                      </View>
-                      
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Zugewiesen seit:</Text>
-                        <Text style={{ color: colors.text, fontWeight: '600' }}>
-                          {user?.district_assigned_date || user?.created_at || new Date().toLocaleDateString('de-DE')}
-                        </Text>
+                      <View style={{ gap: 12 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Zugewiesener Bezirk:</Text>
+                          <Text style={{ color: colors.text, fontWeight: '600' }}>
+                            {profileData.assigned_district || user?.assigned_district}
+                          </Text>
+                        </View>
+                        
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Arbeitsgebiet:</Text>
+                          <Text style={{ color: colors.text, fontWeight: '600' }}>
+                            {user?.district_area || 'Standard-Bereich'}
+                          </Text>
+                        </View>
+                        
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                          <Text style={{ color: colors.textMuted, fontWeight: '500' }}>Zugewiesen seit:</Text>
+                          <Text style={{ color: colors.text, fontWeight: '600' }}>
+                            {user?.district_assigned_date || user?.created_at || new Date().toLocaleDateString('de-DE')}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
+                  )}
 
                   {/* Benutzer-Info */}
                   <View style={{
