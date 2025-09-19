@@ -61,6 +61,18 @@ const ShiftManagementComponent = ({ user, token, API_URL, colors, isDarkMode, is
         setVacations([]);
       }
 
+      // ✅ FIX: Load check-ins properly  
+      try {
+        const checkinResponse = await axios.get(`${API_URL}/api/checkins`, config);
+        if (checkinResponse.data) {
+          console.log('📍 ShiftManagement: Loaded check-ins:', checkinResponse.data);
+          setCheckins(checkinResponse.data || []);
+        }
+      } catch (checkinError) {
+        console.error('❌ Check-in loading error:', checkinError);
+        setCheckins([]);
+      }
+
       // Load checkins
       try {
         const checkinsResponse = await axios.get(`${API_URL}/api/checkins`, config);
