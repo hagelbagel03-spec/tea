@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from bson import ObjectId
+# from bson import ObjectId
 import socketio
 import os
 import logging
@@ -45,26 +45,6 @@ async def test_db_connection():
         print("✅ MongoDB connection successful!")
     except Exception as e:
         print(f"❌ MongoDB connection failed: {e}")
-
-# Helper function to convert ObjectId to string
-def serialize_mongo_data(data):
-    """Convert MongoDB ObjectIds to strings for JSON serialization"""
-    if isinstance(data, list):
-        return [serialize_mongo_data(item) for item in data]
-    elif isinstance(data, dict):
-        result = {}
-        for key, value in data.items():
-            if isinstance(value, ObjectId):
-                result[key] = str(value)
-            elif isinstance(value, (dict, list)):
-                result[key] = serialize_mongo_data(value)
-            else:
-                result[key] = value
-        return result
-    elif isinstance(data, ObjectId):
-        return str(data)
-    else:
-        return data
 
 # Security
 SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key-here-change-in-production")
@@ -652,14 +632,11 @@ async def get_users_by_status(current_user: User = Depends(get_current_user)):
             "status": user_status,
             "is_online": is_online,
             "online_status": "Online" if is_online else "Offline",
-            "last_activity": last_activity.isoformat() if last_activity else None,
-            "patrol_team": user_doc.get("patrol_team"),
-            "assigned_district": user_doc.get("assigned_district"),
-            "photo": user_doc.get("photo")
+            "last_activity": last_activity.isoformat() if last_activity else None
         }
         users_by_status[user_status].append(user_data)
     
-    return serialize_mongo_data(users_by_status)
+    return users_by_status
 
 @api_router.delete("/messages/{message_id}")
 async def delete_message(message_id: str, current_user: User = Depends(get_current_user)):
@@ -794,9 +771,9 @@ async def get_reports(current_user: User = Depends(get_current_user)):
         # Users can only see their own reports
         reports = await db.reports.find({"author_id": current_user.id}).sort("created_at", -1).to_list(100)
     
-    return [Report(**serialize_mongo_data(report)) for report in reports]
+    return [Report(**report) for report in reports]
 
-@api_router.put("/users/{user_id}")
+@api_router.put("/users/{user_id}", response_model=User)
 async def update_user(user_id: str, updates: UserUpdate, current_user: User = Depends(get_current_user)):
     """Update user data (admin only)"""
     if current_user.role != UserRole.ADMIN:
@@ -811,7 +788,7 @@ async def update_user(user_id: str, updates: UserUpdate, current_user: User = De
         raise HTTPException(status_code=404, detail="User not found")
     
     updated_user = await db.users.find_one({"id": user_id})
-    return serialize_mongo_data(updated_user)
+    return User(**updated_user)
 
 @api_router.delete("/users/{user_id}")
 async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
@@ -1229,14 +1206,14 @@ async def update_incident(incident_id: str, updates: Dict[str, Any], current_use
     
     return incident_obj
 
-@api_router.get("/messages")
+@api_router.get("/messages", response_model=List[Message])
 async def get_messages(channel: str = "general", current_user: User = Depends(get_current_user)):
     """Get messages from specified channel"""
     try:
         messages = await db.messages.find({"channel": channel}).sort("timestamp", 1).limit(100).to_list(100)
-        return serialize_mongo_data(messages)
+        return [Message(**message) for message in messages]
     except Exception as e:
-        print(f"❌ Fehler beim Laden der Nachrichten: {str(e)}")
+        # Return empty list if no messages found
         return []
 
 @api_router.get("/messages/private", response_model=List[Message])
@@ -1331,13 +1308,13 @@ async def get_live_locations(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get live locations: {str(e)}")
 
-@api_router.get("/users")
+@api_router.get("/users", response_model=List[User])
 async def get_users(current_user: User = Depends(get_current_user)):
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     users = await db.users.find().to_list(100)
-    return serialize_mongo_data(users)
+    return [User(**user) for user in users]
 
 @api_router.get("/locations/live")
 async def get_live_locations(current_user: User = Depends(get_current_user)):
@@ -1583,67 +1560,6 @@ async def update_app_configuration(
     
     return AppConfiguration(**updated_config)
 
-@api_router.put("/admin/users/{user_id}/assign")
-async def assign_user_district_team(
-    user_id: str, 
-    assignment_data: dict,
-    current_user: User = Depends(get_current_user)
-):
-    """Assign district and team to user (Admin only)"""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Only admins can assign districts and teams")
-    
-    update_data = {}
-    if 'assigned_district' in assignment_data:
-        update_data['assigned_district'] = assignment_data['assigned_district']
-    if 'patrol_team' in assignment_data:
-        update_data['patrol_team'] = assignment_data['patrol_team']
-    
-    if not update_data:
-        raise HTTPException(status_code=400, detail="No assignment data provided")
-    
-    update_data['updated_at'] = datetime.utcnow()
-    
-    result = await db.users.update_one({"id": user_id}, {"$set": update_data})
-    
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    updated_user = await db.users.find_one({"id": user_id})
-    return serialize_mongo_data(updated_user)
-
-# Get all districts
-@api_router.get("/districts")
-async def get_districts(current_user: User = Depends(get_current_user)):
-    """Get all available districts"""
-    districts = [
-        {"id": "innenstadt", "name": "Innenstadt", "description": "Stadtzentrum und Geschäftsviertel"},
-        {"id": "nord", "name": "Nord", "description": "Nördliche Stadtbezirke"},
-        {"id": "sued", "name": "Süd", "description": "Südliche Stadtbezirke"},
-        {"id": "ost", "name": "Ost", "description": "Östliche Stadtbezirke"},
-        {"id": "west", "name": "West", "description": "Westliche Stadtbezirke"},
-        {"id": "industriegebiet", "name": "Industriegebiet", "description": "Industrielle Bereiche"},
-        {"id": "wohngebiet", "name": "Wohngebiet", "description": "Wohngebiete und Siedlungen"},
-        {"id": "zentrum", "name": "Zentrum", "description": "Zentraler Bereich"}
-    ]
-    return districts
-
-# Get all teams
-@api_router.get("/teams")
-async def get_teams(current_user: User = Depends(get_current_user)):
-    """Get all available teams"""
-    teams = [
-        {"id": "alpha", "name": "Team Alpha", "description": "Streifendienst Alpha"},
-        {"id": "bravo", "name": "Team Bravo", "description": "Streifendienst Bravo"},
-        {"id": "charlie", "name": "Team Charlie", "description": "Streifendienst Charlie"},
-        {"id": "delta", "name": "Team Delta", "description": "Streifendienst Delta"},
-        {"id": "spezial", "name": "Spezialeinheit", "description": "Spezielle Einsätze"},
-        {"id": "verkehr", "name": "Verkehrspolizei", "description": "Verkehrsüberwachung"},
-        {"id": "kripo", "name": "Kriminalpolizei", "description": "Ermittlungsdienst"},
-        {"id": "bereitschaft", "name": "Bereitschaftspolizei", "description": "Bereitschaftsdienst"}
-    ]
-    return teams
-
 # Root route
 @api_router.get("/")
 async def root():
@@ -1670,7 +1586,14 @@ if os.path.exists(fonts_path):
     app.mount("/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts", StaticFiles(directory=fonts_path), name="fonts")
     print(f"✅ Icon fonts mounted from: {fonts_path}")
 
-# Root route wird weiter unten definiert
+# Root route - serviert Frontend oder JSON
+@app.get("/")
+async def root():
+    static_index = os.path.join(static_path, "index.html")
+    if os.path.exists(static_index):
+        return FileResponse(static_index)
+    else:
+        return {"message": "Stadtwache Server", "version": "1.0.0", "status": "running"}
 
 # CORS middleware
 app.add_middleware(
@@ -1709,7 +1632,7 @@ async def check_in(current_user: User = Depends(get_current_user)):
             {"$set": {"last_check_in": datetime.utcnow(), "missed_check_ins": 0}}
         )
         
-        return serialize_mongo_data(checkin_data)
+        return checkin_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1722,7 +1645,7 @@ async def get_checkins(current_user: User = Depends(get_current_user)):
         else:
             checkins = await db.checkins.find({"user_id": current_user.id}).sort("timestamp", -1).to_list(50)
         
-        return serialize_mongo_data(checkins)
+        return checkins
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1741,19 +1664,9 @@ async def request_vacation(vacation_data: VacationCreate, current_user: User = D
             "created_at": datetime.utcnow()
         }
         
-        # Log vacation request
-        print(f"📅 URLAUBSANTRAG: {current_user.username} ({current_user.id}) beantragt Urlaub vom {vacation_data.start_date} bis {vacation_data.end_date}")
-        print(f"   Grund: {vacation_data.reason}")
-        print(f"   Status: pending")
-        print(f"   ID: {vacation_dict['id']}")
-        
         await db.vacations.insert_one(vacation_dict)
-        
-        print(f"✅ Urlaubsantrag erfolgreich in Datenbank gespeichert")
-        
-        return serialize_mongo_data(vacation_dict)
+        return vacation_dict
     except Exception as e:
-        print(f"❌ FEHLER beim Urlaubsantrag von {current_user.username}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/vacations")
@@ -1765,33 +1678,7 @@ async def get_vacations(current_user: User = Depends(get_current_user)):
         else:
             vacations = await db.vacations.find({"user_id": current_user.id}).sort("created_at", -1).to_list(100)
         
-        return serialize_mongo_data(vacations)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.delete("/api/vacations/{vacation_id}")
-async def delete_vacation(vacation_id: str, current_user: User = Depends(get_current_user)):
-    """Urlaubsantrag löschen (nur Eigentümer oder Admin)"""
-    try:
-        # Finde den Urlaubsantrag
-        vacation = await db.vacations.find_one({"id": vacation_id})
-        if not vacation:
-            raise HTTPException(status_code=404, detail="Urlaubsantrag nicht gefunden")
-        
-        # Prüfe Berechtigung: Nur der Ersteller oder Admin kann löschen
-        if vacation["user_id"] != current_user.id and current_user.role != "admin":
-            raise HTTPException(status_code=403, detail="Keine Berechtigung zum Löschen")
-        
-        # Lösche den Urlaubsantrag
-        result = await db.vacations.delete_one({"id": vacation_id})
-        
-        if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Urlaubsantrag nicht gefunden")
-        
-        return {"success": True, "message": "Urlaubsantrag erfolgreich gelöscht"}
-        
-    except HTTPException:
-        raise
+        return vacations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1814,39 +1701,21 @@ async def approve_vacation(vacation_id: str, approval_data: VacationApproval, cu
         update_data = {
             "status": "approved" if approval_data.action == "approve" else "rejected",
             "approved_by": current_user.id,
+            "approval_reason": approval_data.reason,
             "approved_at": datetime.utcnow()
         }
-        
-        # Separate handling for approval and rejection reasons
-        if approval_data.action == "approve":
-            update_data["approval_reason"] = approval_data.reason
-        else:
-            update_data["rejection_reason"] = approval_data.reason
-        
-        # Log vacation approval/rejection
-        action_text = "GENEHMIGT" if approval_data.action == "approve" else "ABGELEHNT"
-        print(f"📅 URLAUBSENTSCHEIDUNG: Admin {current_user.username} hat Urlaubsantrag {action_text}")
-        print(f"   Antrag ID: {vacation_id}")
-        print(f"   Benutzer: {vacation.get('user_name', 'unbekannt')}")
-        print(f"   Zeitraum: {vacation.get('start_date')} bis {vacation.get('end_date')}")
-        print(f"   Begründung: {approval_data.reason}")
         
         result = await db.vacations.update_one(
             {"id": vacation_id},
             {"$set": update_data}
         )
         
-        if result.matched_count > 0:
-            print(f"✅ Urlaubsentscheidung erfolgreich in Datenbank gespeichert")
-        else:
-            print(f"❌ Fehler: Urlaubsantrag {vacation_id} nicht gefunden")
-        
         if result.matched_count == 0:
             raise HTTPException(status_code=404, detail="Vacation request not found")
         
         # Aktualisierte Vacation zurückgeben
         updated_vacation = await db.vacations.find_one({"id": vacation_id})
-        return serialize_mongo_data(updated_vacation)
+        return updated_vacation
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -1859,11 +1728,7 @@ async def get_all_vacations(current_user: User = Depends(get_current_user)):
     
     try:
         vacations = await db.vacations.find().sort("created_at", -1).to_list(100)
-        # Clean up MongoDB ObjectId fields for JSON serialization
-        for vacation in vacations:
-            if "_id" in vacation:
-                del vacation["_id"]
-        return serialize_mongo_data(vacations)
+        return vacations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1889,7 +1754,20 @@ async def get_districts(current_user: User = Depends(get_current_user)):
     districts = await db.districts.find().to_list(100)
     return districts
 
-# Removed duplicate endpoint - using @api_router.post("/admin/teams") instead
+@app.post("/api/admin/teams")
+async def create_team(team_data: TeamCreate, current_user: User = Depends(get_current_user)):
+    """Team erstellen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    team_dict = team_data.dict()
+    team_dict['id'] = str(uuid.uuid4())
+    team_dict['created_at'] = datetime.utcnow()
+    team_dict['members'] = []
+    team_dict['status'] = 'Einsatzbereit'
+    
+    await db.teams.insert_one(team_dict)
+    return team_dict
 
 @app.get("/api/admin/teams")
 async def get_teams(current_user: User = Depends(get_current_user)):
@@ -1898,7 +1776,7 @@ async def get_teams(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized")
     
     teams = await db.teams.find().to_list(100)
-    return serialize_mongo_data(teams)
+    return teams
 
 @app.put("/api/admin/assign-user")
 async def assign_user_to_team_district(assignment: TeamAssignment, current_user: User = Depends(get_current_user)):
@@ -2040,103 +1918,387 @@ async def update_team_status(team_id: str, status_data: dict, current_user: User
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Include router - MUST be after all endpoint definitions
-app.include_router(api_router)
-
-# Mount static files from frontend build
-FRONTEND_BUILD_DIR = Path(__file__).parent.parent / "frontend" / "dist"
-FRONTEND_STATIC_DIR = Path(__file__).parent.parent / "frontend" / "dist" / "_expo"
-
-if FRONTEND_BUILD_DIR.exists():
-    # Mount static assets
-    if FRONTEND_STATIC_DIR.exists():
-        app.mount("/_expo", StaticFiles(directory=str(FRONTEND_STATIC_DIR)), name="static")
-    
-    # Mount assets
-    assets_dir = FRONTEND_BUILD_DIR / "assets"
-    if assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
-    
-    # Serve index.html for root
-    @app.get("/")
-    async def serve_index():
-        index_path = FRONTEND_BUILD_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(str(index_path))
-        return {"message": "Frontend not available"}
-    
-    # Serve frontend for all non-API routes
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        """Serve the frontend application for all non-API routes"""
-        # Skip API routes
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="API endpoint not found")
-        
-        # Check for specific files first
-        if full_path:
-            file_path = FRONTEND_BUILD_DIR / full_path
-            if file_path.is_file():
-                return FileResponse(str(file_path))
-        
-        # Serve index.html for SPA routes
-        index_path = FRONTEND_BUILD_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(str(index_path))
-        
-        # Fallback
-        return FileResponse(str(FRONTEND_BUILD_DIR / "index.html"))
-else:
-    @app.get("/")
-    async def root_no_frontend():
-        return {"message": "Frontend not built. Run 'npx expo export --platform web' first."}
-
-# Health check endpoint
-@app.get("/api/health")
-async def api_health():
-    return {"message": "Stadtwache API", "version": "1.0.0", "status": "läuft"}
-
-# Create team endpoint
-@api_router.post("/admin/teams")
-async def create_team(team_data: dict, current_user: User = Depends(get_current_user)):
-    """Team erstellen (Admin only)"""
+@app.put("/api/admin/vacations/{vacation_id}")
+async def handle_vacation_request(vacation_id: str, approval: VacationApproval, current_user: User = Depends(get_current_user)):
+    """Urlaubsantrag genehmigen/ablehnen (nur Admin)"""
     if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Only admins can create teams")
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = {
+        "status": "approved" if approval.action == "approve" else "rejected",
+        "approved_by": current_user.id,
+        "admin_reason": approval.reason or ""
+    }
+    
+    result = await db.vacations.update_one(
+        {"id": vacation_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vacation request not found")
+    
+    return {"status": "success", "message": f"Vacation request {approval.action}d"}
+
+@app.get("/api/admin/attendance")
+async def get_attendance_list(current_user: User = Depends(get_current_user)):
+    """Anwesenheitsliste abrufen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    users = await db.users.find({"is_active": True}).to_list(100)
+    
+    attendance_list = []
+    for user in users:
+        # Team-Info abrufen
+        team_info = None
+        if user.get('patrol_team'):
+            team = await db.teams.find_one({"id": user['patrol_team']})
+            team_info = team['name'] if team else None
+        
+        # Bezirk-Info abrufen
+        district_info = None
+        if user.get('assigned_district'):
+            district = await db.districts.find_one({"id": user['assigned_district']})
+            district_info = district['name'] if district else None
+        
+        attendance_list.append({
+            "id": user["id"],
+            "username": user["username"],
+            "status": user.get("status", "Nicht verfügbar"),
+            "team": team_info,
+            "district": district_info,
+            "last_check_in": user.get("last_check_in"),
+            "phone": user.get("phone"),
+            "rank": user.get("rank")
+        })
+    
+    return attendance_list
+
+@app.get("/api/admin/team-status")
+async def get_team_status(current_user: User = Depends(get_current_user)):
+    """Team-Status abrufen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    teams = await db.teams.find().to_list(100)
+    
+    team_status_list = []
+    for team in teams:
+        # Mitglieder-Status prüfen
+        member_count = len(team.get('members', []))
+        active_members = 0
+        
+        if team.get('members'):
+            active_users = await db.users.find({
+                "id": {"$in": team['members']},
+                "status": {"$in": ["Im Dienst", "Einsatz", "Streife"]}
+            }).to_list(100)
+            active_members = len(active_users)
+        
+        # Team-Status basierend auf aktiven Mitgliedern
+        if active_members == 0:
+            status = "Nicht verfügbar"
+        elif active_members == member_count:
+            status = "Einsatzbereit"
+        else:
+            status = "Im Einsatz"
+        
+        team_status_list.append({
+            "id": team["id"],
+            "name": team["name"],
+            "status": status,
+            "total_members": member_count,
+            "active_members": active_members,
+            "district": team.get("district_id")
+        })
+    
+    return team_status_list
+@app.post("/api/admin/districts")
+async def create_district(district_data: DistrictCreate, current_user: User = Depends(get_current_user)):
+    """Bezirk erstellen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    district_dict = district_data.dict()
+    district_dict['id'] = str(uuid.uuid4())
+    district_dict['created_at'] = datetime.utcnow()
+    
+    await db.districts.insert_one(district_dict)
+    return district_dict
+
+@app.get("/api/admin/districts")
+async def get_districts(current_user: User = Depends(get_current_user)):
+    """Alle Bezirke abrufen"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    districts = await db.districts.find().to_list(100)
+    return districts
+
+@app.post("/api/admin/teams")
+async def create_team(team_data: TeamCreate, current_user: User = Depends(get_current_user)):
+    """Team erstellen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    team_dict = team_data.dict()
+    team_dict['id'] = str(uuid.uuid4())
+    team_dict['created_at'] = datetime.utcnow()
+    team_dict['members'] = []
+    team_dict['status'] = 'Einsatzbereit'
+    
+    await db.teams.insert_one(team_dict)
+    return team_dict
+
+@app.get("/api/admin/teams")
+async def get_teams(current_user: User = Depends(get_current_user)):
+    """Alle Teams abrufen"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    teams = await db.teams.find().to_list(100)
+    return teams
+
+@app.put("/api/admin/assign-user")
+async def assign_user_to_team_district(assignment: TeamAssignment, current_user: User = Depends(get_current_user)):
+    """Benutzer zu Team/Bezirk zuweisen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = {}
+    if assignment.team_id:
+        update_data['patrol_team'] = assignment.team_id
+        # User zu Team hinzufügen
+        await db.teams.update_one(
+            {"id": assignment.team_id},
+            {"$addToSet": {"members": assignment.user_id}}
+        )
+    
+    if assignment.district_id:
+        update_data['assigned_district'] = assignment.district_id
+    
+    # Benutzer aktualisieren
+    result = await db.users.update_one(
+        {"id": assignment.user_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"status": "success", "message": "User assigned successfully"}
+
+@app.get("/api/admin/attendance")
+async def get_attendance_list(current_user: User = Depends(get_current_user)):
+    """Anwesenheitsliste für Admin abrufen"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
     
     try:
-        team_dict = {
-            "id": str(uuid.uuid4()),
-            "name": team_data.get("name"),
-            "description": team_data.get("description", ""),
-            "district": team_data.get("district", ""),
-            "max_members": team_data.get("max_members", 6),
-            "status": team_data.get("status", "Einsatzbereit"),
-            "members": team_data.get("members", []),
-            "created_at": datetime.utcnow(),
-            "created_by": current_user.id
-        }
+        # Alle Benutzer mit Status und Team-Info laden
+        users = await db.users.find().to_list(100)
+        attendance_list = []
         
-        # Insert team
-        await db.teams.insert_one(team_dict)
+        for user in users:
+            # Team-Name abrufen falls zugewiesen
+            team_name = "Nicht zugewiesen"
+            if user.get("patrol_team"):
+                team = await db.teams.find_one({"id": user["patrol_team"]})
+                if team:
+                    team_name = team["name"]
+            
+            # Bezirks-Name abrufen falls zugewiesen  
+            district_name = "Nicht zugewiesen"
+            if user.get("assigned_district"):
+                district = await db.districts.find_one({"id": user["assigned_district"]})
+                if district:
+                    district_name = district["name"]
+            
+            attendance_list.append({
+                "id": user["id"],
+                "username": user["username"],
+                "status": user.get("status", "Im Dienst"),
+                "team": team_name,
+                "district": district_name,
+                "last_check_in": user.get("last_check_in"),
+                "phone": user.get("phone"),
+                "service_number": user.get("service_number"),
+                "is_online": user.get("status") == "Im Dienst"
+            })
         
-        print(f"✅ Team '{team_dict['name']}' erstellt von {current_user.username}")
-        
-        return serialize_mongo_data(team_dict)
+        return attendance_list
         
     except Exception as e:
-        print(f"❌ Fehler beim Team-Erstellen: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Get teams
-@api_router.get("/teams")
-async def get_teams(current_user: User = Depends(get_current_user)):
-    """Get all teams"""
+@app.get("/api/admin/team-status")
+async def get_team_status(current_user: User = Depends(get_current_user)):
+    """Team-Status für Admin abrufen"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
     try:
         teams = await db.teams.find().to_list(100)
-        return serialize_mongo_data(teams)
+        team_status_list = []
+        
+        for team in teams:
+            # Team-Mitglieder laden
+            members = []
+            if team.get("members"):
+                for member_id in team["members"]:
+                    user = await db.users.find_one({"id": member_id})
+                    if user:
+                        members.append({
+                            "id": user["id"],
+                            "username": user["username"],
+                            "status": user.get("status", "Im Dienst")
+                        })
+            
+            # Bezirks-Name abrufen
+            district_name = "Nicht zugewiesen"
+            if team.get("district_id"):
+                district = await db.districts.find_one({"id": team["district_id"]})
+                if district:
+                    district_name = district["name"]
+            
+            team_status_list.append({
+                "id": team["id"],
+                "name": team["name"],
+                "status": team.get("status", "Einsatzbereit"),
+                "district": district_name,
+                "members": members,
+                "member_count": len(members)
+            })
+        
+        return team_status_list
+        
     except Exception as e:
-        print(f"❌ Fehler beim Laden der Teams: {str(e)}")
-        return []
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/admin/teams/{team_id}/status")
+async def update_team_status(team_id: str, status_data: dict, current_user: User = Depends(get_current_user)):
+    """Team-Status aktualisieren"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        new_status = status_data.get("status")
+        if new_status not in ["Einsatzbereit", "Im Einsatz", "Pause", "Nicht verfügbar"]:
+            raise HTTPException(status_code=400, detail="Invalid status")
+        
+        result = await db.teams.update_one(
+            {"id": team_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Team not found")
+        
+        return {"status": "success", "message": f"Team status updated to {new_status}"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/admin/vacations/{vacation_id}")
+async def handle_vacation_request(vacation_id: str, approval: VacationApproval, current_user: User = Depends(get_current_user)):
+    """Urlaubsantrag genehmigen/ablehnen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = {
+        "status": "approved" if approval.action == "approve" else "rejected",
+        "approved_by": current_user.id,
+        "admin_reason": approval.reason or ""
+    }
+    
+    result = await db.vacations.update_one(
+        {"id": vacation_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Vacation request not found")
+    
+    return {"status": "success", "message": f"Vacation request {approval.action}d"}
+
+@app.get("/api/admin/attendance")
+async def get_attendance_list(current_user: User = Depends(get_current_user)):
+    """Anwesenheitsliste abrufen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    users = await db.users.find({"is_active": True}).to_list(100)
+    
+    attendance_list = []
+    for user in users:
+        # Team-Info abrufen
+        team_info = None
+        if user.get('patrol_team'):
+            team = await db.teams.find_one({"id": user['patrol_team']})
+            team_info = team['name'] if team else None
+        
+        # Bezirk-Info abrufen
+        district_info = None
+        if user.get('assigned_district'):
+            district = await db.districts.find_one({"id": user['assigned_district']})
+            district_info = district['name'] if district else None
+        
+        attendance_list.append({
+            "id": user["id"],
+            "username": user["username"],
+            "status": user.get("status", "Nicht verfügbar"),
+            "team": team_info,
+            "district": district_info,
+            "last_check_in": user.get("last_check_in"),
+            "phone": user.get("phone"),
+            "rank": user.get("rank")
+        })
+    
+    return attendance_list
+
+@app.get("/api/admin/team-status")
+async def get_team_status(current_user: User = Depends(get_current_user)):
+    """Team-Status abrufen (nur Admin)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    teams = await db.teams.find().to_list(100)
+    
+    team_status_list = []
+    for team in teams:
+        # Mitglieder-Status prüfen
+        member_count = len(team.get('members', []))
+        active_members = 0
+        
+        if team.get('members'):
+            active_users = await db.users.find({
+                "id": {"$in": team['members']},
+                "status": {"$in": ["Im Dienst", "Einsatz", "Streife"]}
+            }).to_list(100)
+            active_members = len(active_users)
+        
+        # Team-Status basierend auf aktiven Mitgliedern
+        if active_members == 0:
+            status = "Nicht verfügbar"
+        elif active_members == member_count:
+            status = "Einsatzbereit"
+        else:
+            status = "Teilweise besetzt"
+        
+        team_status_list.append({
+            "id": team["id"],
+            "name": team["name"],
+            "status": status,
+            "total_members": member_count,
+            "active_members": active_members,
+            "district": team.get("district_id")
+        })
+    
+    return team_status_list
+
+# Include router - MUST be after all endpoint definitions
+app.include_router(api_router)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
