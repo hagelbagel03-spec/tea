@@ -31,8 +31,8 @@ import ShiftManagementComponent from './components/ShiftManagementComponent';
 
 const { width, height } = Dimensions.get('window');
 
-// API Configuration - Use environment variable with fallback
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "http://localhost:8001";
+// API Configuration - FIXED for Root System
+const API_URL = "http://localhost:8001";
 
 // MOBILE RESPONSIVE - NUR DIE WICHTIGSTEN FIXES
 const isSmallScreen = width < 400;
