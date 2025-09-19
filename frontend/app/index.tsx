@@ -12964,6 +12964,7 @@ Beispielinhalt:
                 console.log('👥 Team zuordnen clicked');
                 // ✅ FIX: Zuerst Benutzer laden, dann Modal öffnen
                 loadAvailableUsers();
+                loadTeams(); // ✅ FIX: Teams auch laden
                 setShowTeamAssignmentModal(true);
               }}
               activeOpacity={0.7}
