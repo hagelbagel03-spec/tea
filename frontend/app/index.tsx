@@ -195,6 +195,10 @@ const AuthProvider = ({ children }) => {
 
   const checkAuthState = async () => {
     try {
+      // KRITISCH: Warte bis API_URL gesetzt ist
+      const API_BASE = process.env.EXPO_PUBLIC_BACKEND_URL || "http://212.227.57.238:8001";
+      console.log('🌐 Using API URL for auth check:', API_BASE);
+      
       // Versuche gespeicherten Token zu laden
       const savedToken = await AsyncStorage.getItem('stadtwache_token');
       const savedUser = await AsyncStorage.getItem('stadtwache_user');
@@ -204,7 +208,7 @@ const AuthProvider = ({ children }) => {
         
         // Validiere Token mit Backend
         try {
-          const response = await axios.get(`${API_URL}/api/auth/me`, {
+          const response = await axios.get(`${API_BASE}/api/auth/me`, {
             headers: { Authorization: `Bearer ${savedToken}` }
           });
           
