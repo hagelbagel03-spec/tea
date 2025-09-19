@@ -755,6 +755,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   const [showTeamAssignmentModal, setShowTeamAssignmentModal] = useState(false); // ✅ NEU: Team-Assignment-Modal State
   // ✅ NEU: Multi-Select für Bezirks-Zuordnung (bis zu 3 Benutzer)
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null); // ✅ FIX: Für andere Funktionen die nur einen User brauchen
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null); // ✅ NEU: Team-Auswahl State
   const [selectedRole, setSelectedRole] = useState(null); // ✅ NEU: Rollen-Auswahl State
