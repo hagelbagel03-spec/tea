@@ -15327,14 +15327,7 @@ Beispielinhalt:
                   👥 Team auswählen:
                 </Text>
                 
-                {[
-                  { id: 'alpha', name: 'Team Alpha', description: 'Streifenpolizei - Haupteinsatz', status: 'Aktiv' },
-                  { id: 'bravo', name: 'Team Bravo', description: 'Verkehrspolizei', status: 'Aktiv' },
-                  { id: 'charlie', name: 'Team Charlie', description: 'Ermittlungen', status: 'Aktiv' },
-                  { id: 'delta', name: 'Team Delta', description: 'Sondereinsatz', status: 'Bereitschaft' },
-                  { id: 'echo', name: 'Team Echo', description: 'Nachtschicht', status: 'Aktiv' },
-                  { id: 'foxtrot', name: 'Team Foxtrot', description: 'Wochenende', status: 'Bereitschaft' }
-                ].map((team) => (
+                {availableTeams.length > 0 ? availableTeams.map((team) => (
                   <TouchableOpacity
                     key={team.id}
                     onPress={() => setSelectedTeam(team)}
