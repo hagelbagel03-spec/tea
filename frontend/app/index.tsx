@@ -14142,9 +14142,9 @@ Beispielinhalt:
                     </View>
 
                     {/* ✅ FIX: Team-Member aus usersByStatus laden */}
-                    {usersByStatus.filter(u => u.patrol_team === (profileData.patrol_team || user?.patrol_team)).length > 0 ? (
+                    {Object.values(usersByStatus).flat().filter(u => u.patrol_team === (profileData.patrol_team || user?.patrol_team)).length > 0 ? (
                       <View style={{ gap: 12 }}>
-                        {usersByStatus
+                        {Object.values(usersByStatus).flat()
                           .filter(u => u.patrol_team === (profileData.patrol_team || user?.patrol_team))
                           .map((teamMember, index) => (
                             <View key={teamMember.id || index} style={{
