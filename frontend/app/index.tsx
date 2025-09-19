@@ -15686,5 +15686,11 @@ const AppContent = () => {
     );
   }
 
-  return user ? <MainApp appConfig={appConfig} setAppConfig={setAppConfig} /> : <LoginScreen appConfig={appConfig} />;
+  return user ? (
+    <MainAppErrorBoundary>
+      <MainApp appConfig={appConfig} setAppConfig={setAppConfig} />
+    </MainAppErrorBoundary>
+  ) : (
+    <LoginScreen appConfig={appConfig} />
+  );
 };
