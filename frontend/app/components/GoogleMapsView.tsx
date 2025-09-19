@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 const { width } = Dimensions.get('window');
 
@@ -18,19 +17,17 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
     success: '#28A745'
   };
 
-  const [mapReady, setMapReady] = useState(false);
-
   const getCoordinates = () => {
     if (incident?.location?.lat && incident?.location?.lng) {
       return {
-        latitude: parseFloat(incident.location.lat),
-        longitude: parseFloat(incident.location.lng)
+        lat: parseFloat(incident.location.lat),
+        lng: parseFloat(incident.location.lng)
       };
     }
     if (incident?.coordinates?.lat && incident?.coordinates?.lng) {
       return {
-        latitude: parseFloat(incident.coordinates.lat),
-        longitude: parseFloat(incident.coordinates.lng)
+        lat: parseFloat(incident.coordinates.lat),
+        lng: parseFloat(incident.coordinates.lng)
       };
     }
     return null;
@@ -44,6 +41,17 @@ const GoogleMapsView = ({ incident }: { incident: any }) => {
       case 'medium': return colors.warning;
       case 'low': return colors.success;
       default: return colors.primary;
+    }
+  };
+
+  const openInGoogleMaps = () => {
+    if (coordinates) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`;
+      if (Platform.OS === 'web') {
+        window.open(url, '_blank');
+      } else {
+        Alert.alert('Google Maps', `Koordinaten: ${coordinates.lat}, ${coordinates.lng}`);
+      }
     }
   };
 
