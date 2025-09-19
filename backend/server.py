@@ -1769,7 +1769,7 @@ async def get_vacations(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.delete("/api/vacations/{vacation_id}")
+@api_router.delete("/vacations/{vacation_id}")
 async def delete_vacation(vacation_id: str, current_user: User = Depends(get_current_user)):
     """Urlaubsantrag löschen (nur Eigentümer oder Admin)"""
     try:
