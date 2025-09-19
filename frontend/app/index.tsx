@@ -12919,6 +12919,18 @@ Beispielinhalt:
                           <Text style={dynamicStyles.shiftInputHint}>
                             📝 Grund: {vacation.reason}
                           </Text>
+                          {vacation.approved_at && (
+                            <Text style={[dynamicStyles.shiftInputHint, { color: colors.textMuted, marginTop: 4 }]}>
+                              📅 Bearbeitet: {new Date(vacation.approved_at).toLocaleDateString('de-DE', { 
+                                year: 'numeric', 
+                                month: '2-digit', 
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                              {vacation.status === 'approved' ? ' ✅ Genehmigt' : vacation.status === 'rejected' ? ' ❌ Abgelehnt' : ''}
+                            </Text>
+                          )}
                         </View>
                         
                         <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, marginBottom: 20 }}>
