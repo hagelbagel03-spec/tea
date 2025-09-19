@@ -2225,6 +2225,50 @@ const MainApp = ({ appConfig, setAppConfig }) => {
 
   // Admin Settings Functions
   // Neue Admin-Funktionen
+  // ✅ NEU: Load sick leave for admin
+  const loadPendingSickLeave = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin/sick-leave`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🏥 Admin loaded sick leave:', data);
+        
+        // Nur PENDING Krankmeldungen anzeigen (bearbeitete ausblenden)
+        const pendingOnly = data.filter(sickLeave => sickLeave.status === 'pending');
+        console.log('🏥 Showing pending sick leave only:', pendingOnly.length, 'of', data.length);
+        setPendingSickLeave(pendingOnly || []);
+      } else {
+        console.error('❌ Fehler beim Laden der Krankmeldungen');
+        setPendingSickLeave([]);
+      }
+    } catch (error) {
+      console.error('❌ Network error loading sick leave:', error);
+      setPendingSickLeave([]);
+    }
+  };
+
+  // Load my personal sick leave
+  const loadMySickLeave = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/sick-leave`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🏥 Loaded my sick leave:', data);
+        setPendingSickLeave(data || []); // Für persönliche Ansicht alle anzeigen
+      } else {
+        console.error('❌ Fehler beim Laden meiner Krankmeldungen');
+        setPendingSickLeave([]);
+      }
+    } catch (error) {
+      console.error('❌ Network error loading my sick leave:', error);
+      setPendingSickLeave([]);
+    }
+  };
+
   const loadPendingVacations = async () => {
     try {
       // ✅ FIX: Nur PENDING Urlaubsanträge für Admin laden (keine bearbeiteten)
