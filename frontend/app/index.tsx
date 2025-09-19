@@ -9331,7 +9331,10 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                   color: (profileData.patrol_team || user?.patrol_team) ? colors.primary : colors.warning, 
                   fontSize: 14 
                 }]}>
-                  {profileData.patrol_team || user?.patrol_team || user?.team || 'Nicht zugewiesen'}
+                  {(profileData.patrol_team || user?.patrol_team || user?.team) ? 
+                    (profileData.patrol_team || user?.patrol_team || user?.team) : 
+                    null
+                  }
                 </Text>
                 <Text style={dynamicStyles.summaryLabel}>Team</Text>
               </View>
