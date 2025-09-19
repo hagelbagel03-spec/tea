@@ -1126,7 +1126,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     medical_certificate: false
   });
   const [pendingSickLeave, setPendingSickLeave] = useState([]);
-  const [pendingVacations, setPendingVacations] = useState([]);
+  // pendingVacations bereits oben deklariert (Zeile 783) - keine doppelte Deklaration
   
   useEffect(() => {
     if (selectedChannel && selectedChannel !== 'private') {
