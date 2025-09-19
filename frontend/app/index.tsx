@@ -12901,7 +12901,7 @@ Beispielinhalt:
                     <View style={dynamicStyles.shiftModernInputContainer}>
                       <Ionicons name="calendar-outline" size={20} color={colors.textMuted} />
                       <Text style={[dynamicStyles.shiftModernInput, { color: colors.textMuted }]}>
-                        Keine ausstehenden Urlaubsanträge
+                        Keine Urlaubsanträge vorhanden
                       </Text>
                     </View>
                   ) : (
