@@ -10224,7 +10224,12 @@ const MainApp = ({ appConfig, setAppConfig }) => {
                       
                       if (response.ok) {
                         Alert.alert('✅ Erfolg', 'Urlaubsantrag wurde eingereicht!');
-                        setVacationFormData({ user_id: '', start_date: '', end_date: '', reason: '' });
+                        setVacationFormData({ 
+                          user_id: '', 
+                          start_date: new Date().toISOString().split('T')[0], // ✅ Aktuelles Datum setzen
+                          end_date: new Date().toISOString().split('T')[0], // ✅ Aktuelles Datum setzen
+                          reason: '' 
+                        });
                         loadMyVacations(); // Neu laden
                       } else {
                         Alert.alert('❌ Fehler', 'Urlaubsantrag konnte nicht eingereicht werden.');

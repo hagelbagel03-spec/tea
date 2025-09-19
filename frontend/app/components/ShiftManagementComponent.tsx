@@ -890,35 +890,6 @@ const ShiftManagementComponent = ({ user, token, API_URL, colors, isDarkMode, is
   return (
     <ScrollView style={dynamicStyles.container}>
       {/* User Info Card */}
-      <View style={dynamicStyles.userInfoCard}>
-        <View style={dynamicStyles.userInfoHeader}>
-          <View style={dynamicStyles.userInfoIcon}>
-            <Ionicons name="person" size={20} color={colors.primary} />
-          </View>
-          <View style={dynamicStyles.userInfoContent}>
-            <Text style={dynamicStyles.userInfoTitle}>Meine Dienstinfos</Text>
-            <Text style={dynamicStyles.userInfoSubtitle}>Aktuelle Zuordnung</Text>
-          </View>
-        </View>
-        
-        <View style={dynamicStyles.userInfoDetails}>
-          <View style={dynamicStyles.userInfoRow}>
-            <Ionicons name="people" size={16} color={colors.secondary} />
-            <Text style={dynamicStyles.userInfoLabel}>Team:</Text>
-            <Text style={dynamicStyles.userInfoValue}>
-              {user?.patrol_team || 'Nicht zugewiesen'}
-            </Text>
-          </View>
-          
-          <View style={dynamicStyles.userInfoRow}>
-            <Ionicons name="map" size={16} color={colors.warning} />
-            <Text style={dynamicStyles.userInfoLabel}>Bezirk:</Text>
-            <Text style={dynamicStyles.userInfoValue}>
-              {user?.assigned_district || 'Nicht zugewiesen'}
-            </Text>
-          </View>
-        </View>
-      </View>
 
       {/* Status Check-In Buttons */}
       <View style={dynamicStyles.section}>
