@@ -1851,7 +1851,7 @@ async def approve_vacation(vacation_id: str, approval_data: VacationApproval, cu
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/admin/vacations")
+@api_router.get("/admin/vacations")
 async def get_all_vacations(current_user: User = Depends(get_current_user)):
     """Alle Urlaubsanträge für Admin abrufen"""
     if current_user.role != "admin":
