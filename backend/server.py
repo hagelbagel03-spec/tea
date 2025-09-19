@@ -2267,6 +2267,28 @@ async def get_teams(current_user: User = Depends(get_current_user)):
         print(f"❌ Fehler beim Laden der Teams: {str(e)}")
         return []
 
+# ✅ NEU: Admin teams endpoint for team management
+@api_router.get("/admin/teams")
+async def get_admin_teams(current_user: User = Depends(get_current_user)):
+    """Get all teams with member counts (Admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Nur Administratoren können Teams verwalten")
+    
+    try:
+        teams = await db.teams.find().to_list(100)
+        
+        # ✅ FIX: Add member count to each team
+        for team in teams:
+            # Count users assigned to this team
+            member_count = await db.users.count_documents({"patrol_team": team.get("name", "").lower()})
+            team["member_count"] = member_count
+            team["status"] = f"{member_count} Mitglieder"
+        
+        return serialize_mongo_data(teams)
+    except Exception as e:
+        print(f"❌ Fehler beim Laden der Admin-Teams: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
