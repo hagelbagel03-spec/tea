@@ -49,6 +49,18 @@ const ShiftManagementComponent = ({ user, token, API_URL, colors, isDarkMode, is
       // Load user data first for real-time updates
       await loadUserData();
 
+      // ✅ FIX: Load personal vacations properly
+      try {
+        const vacationResponse = await axios.get(`${API_URL}/api/vacations`, config);
+        if (vacationResponse.data) {
+          console.log('📅 ShiftManagement: Loaded my vacations:', vacationResponse.data);
+          setVacations(vacationResponse.data || []);
+        }
+      } catch (vacationError) {
+        console.error('❌ Vacation loading error:', vacationError);
+        setVacations([]);
+      }
+
       // Load checkins
       try {
         const checkinsResponse = await axios.get(`${API_URL}/api/checkins`, config);
