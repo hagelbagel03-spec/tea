@@ -1123,6 +1123,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     medical_certificate: false
   });
   const [pendingSickLeave, setPendingSickLeave] = useState([]);
+  const [pendingVacations, setPendingVacations] = useState([]);
   
   useEffect(() => {
     if (selectedChannel && selectedChannel !== 'private') {
