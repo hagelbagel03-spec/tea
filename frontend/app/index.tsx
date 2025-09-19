@@ -1542,6 +1542,31 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     }
   };
 
+  // Load teams from backend with member counts
+  const loadTeams = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin/teams`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const teams = await response.json();
+        console.log('👥 Teams loaded from backend:', teams);
+        setAvailableTeams(teams || []);
+      } else {
+        console.error('❌ Fehler beim Laden der Teams');
+        // Fallback zu statischen Teams
+        setAvailableTeams([
+          { id: 'alpha', name: 'Team Alpha', description: 'Streifenpolizei - Haupteinsatz', status: '0 Mitglieder' },
+          { id: 'bravo', name: 'Team Bravo', description: 'Verkehrspolizei', status: '0 Mitglieder' },
+          { id: 'charlie', name: 'Team Charlie', description: 'Ermittlungen', status: '0 Mitglieder' }
+        ]);
+      }
+    } catch (error) {
+      console.error('❌ Network error loading teams:', error);
+      setAvailableTeams([]);
+    }
+  };
+
   // Load available districts for district assignment
   const loadAvailableDistricts = async () => {
     try {
