@@ -1113,6 +1113,17 @@ const MainApp = ({ appConfig, setAppConfig }) => {
     status: 'pending'
   });
   
+  // ✅ NEU: Sick Leave (Krankmeldung) System
+  const [showSickLeaveModal, setShowSickLeaveModal] = useState(false);
+  const [sickLeaveFormData, setSickLeaveFormData] = useState({
+    user_id: '',
+    start_date: '',
+    end_date: '',
+    reason: '',
+    medical_certificate: false
+  });
+  const [pendingSickLeave, setPendingSickLeave] = useState([]);
+  
   useEffect(() => {
     if (selectedChannel && selectedChannel !== 'private') {
       loadChannelMessages(selectedChannel);
