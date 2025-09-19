@@ -3587,24 +3587,31 @@ const MainApp = ({ appConfig, setAppConfig }) => {
       const location = await getCurrentLocation();
       if (location) {
         const locationString = `📍 GPS: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
-        console.log('✅ Standort erfolgreich gesetzt:', locationString);
         
+        // ✅ FIX: Update incident form with location text AND coordinates for map
         setIncidentFormData(prev => ({
           ...prev,
           location: locationString,
-          coordinates: location
+          // ✅ NEU: Koordinaten für Karte speichern
+          coordinates: {
+            lat: location.lat,
+            lng: location.lng
+          }
         }));
         
+        console.log('✅ Standort für Vorfall gesetzt:', locationString);
+        console.log('🗺️ Koordinaten für Karte gespeichert:', location);
+        
         Alert.alert(
-          '✅ Standort erfasst', 
-          `Ihr aktueller Standort wurde erfasst:\n\nLatitude: ${location.lat.toFixed(6)}\nLongitude: ${location.lng.toFixed(6)}\nGenauigkeit: ${location.accuracy ? location.accuracy.toFixed(0) + 'm' : 'Unbekannt'}`
+          '📍 Standort erfasst', 
+          `GPS-Koordinaten wurden automatisch eingetragen und sind nun auf der Karte sichtbar.\n\nKoordinaten: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`
         );
       }
     } catch (error) {
-      console.error('❌ Fehler beim Verwenden des Standorts:', error);
+      console.error('❌ Fehler bei GPS-Standortermittlung:', error);
       Alert.alert(
-        '❌ GPS-Fehler', 
-        'Standort konnte nicht erfasst werden. Bitte überprüfen Sie Ihre Browser-Berechtigungen für Standortdienste oder geben Sie die Adresse manuell ein.'
+        '❌ GPS-Fehler',
+        'Standort konnte nicht ermittelt werden. Bitte geben Sie die Adresse manuell ein.'
       );
     }
   };
