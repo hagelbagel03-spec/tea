@@ -1798,7 +1798,7 @@ async def delete_vacation(vacation_id: str, current_user: User = Depends(get_cur
 # Admin Management Endpoints
 
 # Urlaubsanträge Admin-Endpunkte
-@app.put("/api/admin/vacations/{vacation_id}/approve")
+@api_router.put("/admin/vacations/{vacation_id}/approve")
 async def approve_vacation(vacation_id: str, approval_data: VacationApproval, current_user: User = Depends(get_current_user)):
     """Urlaubsantrag genehmigen/ablehnen (nur Admin)"""
     if current_user.role != "admin":
