@@ -753,7 +753,8 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   const [showDistrictDetailModal, setShowDistrictDetailModal] = useState(false); // ✅ NEU: Detail-Modal State
   const [showTeamDetailModal, setShowTeamDetailModal] = useState(false); // ✅ NEU: Team-Detail-Modal State
   const [showTeamAssignmentModal, setShowTeamAssignmentModal] = useState(false); // ✅ NEU: Team-Assignment-Modal State
-  const [selectedUser, setSelectedUser] = useState(null);
+  // ✅ NEU: Multi-Select für Bezirks-Zuordnung (bis zu 3 Benutzer)
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null); // ✅ NEU: Team-Auswahl State
   const [selectedRole, setSelectedRole] = useState(null); // ✅ NEU: Rollen-Auswahl State
