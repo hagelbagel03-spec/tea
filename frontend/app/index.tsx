@@ -771,6 +771,32 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   const [showAdminSettingsModal, setShowAdminSettingsModal] = useState(false);
   
   // Neue Admin Modals
+  // ✅ NEU: Sick Leave Management State
+  const [showSickLeaveManagementModal, setShowSickLeaveManagementModal] = useState(false);
+  
+  // Handle sick leave approval/rejection
+  const handleSickLeaveApproval = async (sickLeaveId, action) => {
+    try {
+      const response = await fetch(`${API_URL}/api/admin/sick-leave/${sickLeaveId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action })
+      });
+
+      if (response.ok) {
+        Alert.alert('✅ Erfolg', `Krankmeldung wurde ${action === 'approve' ? 'genehmigt' : 'abgelehnt'}!`);
+        loadPendingSickLeave(); // Neu laden
+      } else {
+        Alert.alert('❌ Fehler', 'Aktion konnte nicht ausgeführt werden.');
+      }
+    } catch (error) {
+      Alert.alert('❌ Netzwerkfehler', 'Verbindung zum Server fehlgeschlagen.');
+    }
+  };
+
   const [showVacationManagementModal, setShowVacationManagementModal] = useState(false);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [showTeamStatusModal, setShowTeamStatusModal] = useState(false);
