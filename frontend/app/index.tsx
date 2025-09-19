@@ -31,8 +31,8 @@ import ShiftManagementComponent from './components/ShiftManagementComponent';
 
 const { width, height } = Dimensions.get('window');
 
-// API Configuration - FIXED for external IP
-const API_URL = "http://212.227.57.238:8001";
+// API Configuration - Use environment variable
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "http://212.227.57.238:8001";
 
 // MOBILE RESPONSIVE - NUR DIE WICHTIGSTEN FIXES
 const isSmallScreen = width < 400;
