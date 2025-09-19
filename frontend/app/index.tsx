@@ -2186,7 +2186,7 @@ const MainApp = ({ appConfig, setAppConfig }) => {
   // Neue Admin-Funktionen
   const loadPendingVacations = async () => {
     try {
-      // FIX: Für Admins alle Urlaubsanträge laden (nicht nur pending)
+      // ✅ FIX: Nur PENDING Urlaubsanträge für Admin laden (keine bearbeiteten)
       const response = await fetch(`${API_URL}/api/admin/vacations`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -2194,9 +2194,10 @@ const MainApp = ({ appConfig, setAppConfig }) => {
         const data = await response.json();
         console.log('📅 Loaded all vacations:', data);
         
-        // ✅ FIX: Alle Urlaubsanträge anzeigen (nicht nur pending)
-        console.log('📅 Showing all vacations (pending, approved, rejected):', data.length);
-        setPendingVacations(data || []);
+        // ✅ FIX: Nur PENDING Urlaubsanträge anzeigen (bearbeitete ausblenden)
+        const pendingOnly = data.filter(vacation => vacation.status === 'pending');
+        console.log('📅 Showing pending vacations only:', pendingOnly.length, 'of', data.length);
+        setPendingVacations(pendingOnly || []);
       } else {
         console.error('❌ Fehler beim Laden der Urlaubsanträge');
         setPendingVacations([]);

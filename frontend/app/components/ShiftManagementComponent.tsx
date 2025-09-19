@@ -889,7 +889,7 @@ const ShiftManagementComponent = ({ user, token, API_URL, colors, isDarkMode, is
 
   return (
     <ScrollView style={dynamicStyles.container}>
-      {/* User Info Card */}
+ 
 
       {/* Status Check-In Buttons */}
       <View style={dynamicStyles.section}>
