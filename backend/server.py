@@ -1884,6 +1884,125 @@ async def get_all_vacations(current_user: User = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ✅ NEU: Sick Leave (Krankmeldung) Management APIs
+@api_router.post("/sick-leave")
+async def create_sick_leave(sick_leave_data: dict, current_user: User = Depends(get_current_user)):
+    """Create new sick leave request"""
+    try:
+        sick_leave = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user.id,
+            "user_name": current_user.username,
+            "start_date": sick_leave_data.get('start_date'),
+            "end_date": sick_leave_data.get('end_date'),
+            "reason": sick_leave_data.get('reason', ''),
+            "medical_certificate": sick_leave_data.get('medical_certificate', False),
+            "status": "pending",
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await db.sick_leave.insert_one(sick_leave)
+        if result.inserted_id:
+            print(f"✅ Krankmeldung erstellt: {sick_leave['user_name']} ({sick_leave['start_date']} - {sick_leave['end_date']})")
+            return {"message": "Krankmeldung erfolgreich eingereicht", "sick_leave": serialize_mongo_data(sick_leave)}
+        else:
+            raise HTTPException(status_code=500, detail="Krankmeldung konnte nicht erstellt werden")
+    except Exception as e:
+        print(f"❌ Fehler beim Erstellen der Krankmeldung: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/sick-leave")
+async def get_user_sick_leave(current_user: User = Depends(get_current_user)):
+    """Get current user's sick leave requests"""
+    try:
+        sick_leave_list = await db.sick_leave.find({"user_id": current_user.id}).to_list(None)
+        return serialize_mongo_data(sick_leave_list)
+    except Exception as e:
+        print(f"❌ Fehler beim Laden der Krankmeldungen: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/sick-leave")
+async def get_all_sick_leave(current_user: User = Depends(get_current_user)):
+    """Get all sick leave requests (Admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Nur Administratoren können alle Krankmeldungen einsehen")
+    
+    try:
+        sick_leave_list = await db.sick_leave.find({}).to_list(None)
+        return serialize_mongo_data(sick_leave_list)
+    except Exception as e:
+        print(f"❌ Fehler beim Laden aller Krankmeldungen: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/admin/sick-leave/{sick_leave_id}/approve")
+async def approve_sick_leave(sick_leave_id: str, action_data: dict, current_user: User = Depends(get_current_user)):
+    """Approve or reject sick leave request (Admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Nur Administratoren können Krankmeldungen genehmigen")
+    
+    try:
+        action = action_data.get('action')  # 'approve' or 'reject'
+        rejection_reason = action_data.get('rejection_reason', '')
+        
+        if action not in ['approve', 'reject']:
+            raise HTTPException(status_code=400, detail="Aktion muss 'approve' oder 'reject' sein")
+        
+        status = 'approved' if action == 'approve' else 'rejected'
+        update_data = {
+            "status": status,
+            "approved_by": current_user.username,
+            "approved_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        if action == 'reject' and rejection_reason:
+            update_data["rejection_reason"] = rejection_reason
+        
+        result = await db.sick_leave.update_one(
+            {"id": sick_leave_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Krankmeldung nicht gefunden")
+        
+        # Get updated sick leave
+        updated_sick_leave = await db.sick_leave.find_one({"id": sick_leave_id})
+        print(f"✅ Krankmeldung {status}: {updated_sick_leave.get('user_name')} von {current_user.username}")
+        
+        return serialize_mongo_data(updated_sick_leave)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Fehler beim Genehmigen der Krankmeldung: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/sick-leave/{sick_leave_id}")
+async def delete_sick_leave(sick_leave_id: str, current_user: User = Depends(get_current_user)):
+    """Delete sick leave request"""
+    try:
+        # Check if sick leave belongs to current user or user is admin
+        sick_leave = await db.sick_leave.find_one({"id": sick_leave_id})
+        if not sick_leave:
+            raise HTTPException(status_code=404, detail="Krankmeldung nicht gefunden")
+        
+        if sick_leave["user_id"] != current_user.id and current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Keine Berechtigung zum Löschen dieser Krankmeldung")
+        
+        result = await db.sick_leave.delete_one({"id": sick_leave_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Krankmeldung nicht gefunden")
+        
+        return {"message": "Krankmeldung gelöscht"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Fehler beim Löschen der Krankmeldung: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/admin/districts")
 async def create_district(district_data: DistrictCreate, current_user: User = Depends(get_current_user)):
     """Bezirk erstellen (nur Admin)"""
