@@ -15328,7 +15328,8 @@ Beispielinhalt:
                   👥 Team auswählen:
                 </Text>
                 
-                {availableTeams.length > 0 ? availableTeams.map((team) => (
+                {/* ✅ FIX: Einfache Lösung ohne komplexen ternary operator */}
+                {availableTeams.map((team) => (
                   <TouchableOpacity
                     key={team.id}
                     onPress={() => setSelectedTeam(team)}
@@ -15379,7 +15380,10 @@ Beispielinhalt:
                       </Text>
                     </View>
                   </TouchableOpacity>
-                )) : (
+                ))}
+
+                {/* Empty state */}
+                {availableTeams.length === 0 && (
                   <View style={{
                     padding: 20,
                     alignItems: 'center',
